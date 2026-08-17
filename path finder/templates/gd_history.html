@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD History — Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh; color: #e2e8f0;
+        }
+        .top-nav {
+            background: rgba(15,23,42,0.95); border-bottom: 1px solid rgba(249,115,22,0.2);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .nav-brand { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #f97316, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-right { display: flex; gap: 12px; }
+        .nav-link { color: #94a3b8; text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
+        .nav-link:hover { color: #f97316; }
+        .container { max-width: 1050px; margin: 0 auto; padding: 36px 20px; }
+
+        /* Page Header */
+        .page-header { margin-bottom: 36px; }
+        .page-header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #f97316, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .page-header p { color: #64748b; font-size: 0.95rem; }
+
+        /* Stats Row */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .stat-card {
+            background: rgba(15,23,42,0.9); border-radius: 16px; border: 1px solid rgba(249,115,22,0.12);
+            padding: 20px 18px; text-align: center;
+        }
+        .stat-num { font-size: 2rem; font-weight: 800; color: #f97316; line-height: 1; margin-bottom: 6px; }
+        .stat-lbl { font-size: 0.78rem; color: #64748b; }
+
+        /* Tabs */
+        .tab-bar { display: flex; gap: 0; background: rgba(15,23,42,0.7); border-radius: 12px; padding: 4px; margin-bottom: 24px; width: fit-content; border: 1px solid rgba(249,115,22,0.12); }
+        .tab-btn {
+            padding: 10px 24px; border-radius: 9px; border: none; cursor: pointer;
+            font-size: 0.88rem; font-weight: 600; transition: all 0.25s;
+            background: transparent; color: #64748b;
+        }
+        .tab-btn.active { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
+        .tab-btn:not(.active):hover { color: #f97316; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Room Card */
+        .room-card {
+            background: rgba(15,23,42,0.9); border-radius: 18px;
+            border: 1px solid rgba(249,115,22,0.12); margin-bottom: 14px;
+            overflow: hidden; transition: border-color 0.25s, transform 0.2s;
+        }
+        .room-card:hover { border-color: rgba(249,115,22,0.3); transform: translateY(-2px); }
+        .room-card-inner { padding: 20px 22px; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+        .rc-main { flex: 1; }
+        .rc-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .rc-title { font-size: 1rem; font-weight: 700; color: #fff; }
+        .rc-status-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600;
+        }
+        .rc-status-chip.completed { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+        .rc-status-chip.cancelled { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+        .rc-topic { font-size: 0.83rem; color: #94a3b8; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .rc-meta { display: flex; flex-wrap: wrap; gap: 12px; }
+        .rc-meta-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #475569; }
+        .rc-meta-item i { color: #f97316; font-size: 0.7rem; }
+        .rc-score { text-align: center; }
+        .rc-score-num { font-size: 2rem; font-weight: 900; color: #f97316; line-height: 1; }
+        .rc-score-lbl { font-size: 0.7rem; color: #475569; margin-bottom: 6px; }
+        .rc-grade { display: inline-block; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2); color: #f97316; padding: 3px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; }
+        .rc-actions { padding: 12px 22px; border-top: 1px solid rgba(249,115,22,0.07); display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-sm {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 9px; font-size: 0.8rem; font-weight: 600;
+            text-decoration: none; border: none; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-sm-primary { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+        .btn-sm-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(249,115,22,0.3); }
+        .btn-sm-outline { background: rgba(249,115,22,0.08); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+        .btn-sm-outline:hover { background: rgba(249,115,22,0.18); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: #475569; }
+        .empty-state i { font-size: 3.5rem; margin-bottom: 16px; display: block; opacity: 0.35; }
+        .empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: #64748b; }
+        .empty-state p { font-size: 0.88rem; margin-bottom: 22px; }
+        .empty-state a { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; padding: 11px 22px; border-radius: 11px; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+
+        @media (max-width: 720px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .room-card-inner { grid-template-columns: 1fr; gap: 14px; }
+            .rc-score { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/dashboard" class="nav-brand"><i class="fas fa-route"></i> Student Career Assistant</a>
+        <div class="nav-right">
+            <a href="/group-discussion" class="nav-link"><i class="fas fa-plus"></i> New Room</a>
+            <a href="/group-discussion" class="nav-link"><i class="fas fa-comments"></i> GD Arena</a>
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-history" style="-webkit-text-fill-color:#f97316; font-size:1.6rem;"></i> Group Discussion History</h1>
+            <p>Your complete track record of group discussions participated and hosted.</p>
+        </div>
+
+        <!-- Stats -->
+        {% set total_rooms = (participated_rooms | length) + (hosted_rooms | length) %}
+        {% set all_evals = [] %}
+        {% for r in participated_rooms %}{% if r.evaluations %}{% set _ = all_evals.append(r.evaluations[0]) %}{% endif %}{% endfor %}
+        {% set avg_s = (all_evals | map(attribute='overall_score') | sum / all_evals|length) if all_evals else 0 %}
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-num">{{ participated_rooms | length }}</div>
+                <div class="stat-lbl">Participated In</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">{{ hosted_rooms | length }}</div>
+                <div class="stat-lbl">Rooms Hosted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">{{ "%.1f"|format(avg_s) }}</div>
+                <div class="stat-lbl">Avg Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">{{ all_evals | selectattr('overall_score', 'ge', 7) | list | length }}</div>
+                <div class="stat-lbl">High Scores (≥7)</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('participated', this)"><i class="fas fa-user"></i> Participated</button>
+            <button class="tab-btn" onclick="switchTab('hosted', this)"><i class="fas fa-crown"></i> Hosted</button>
+        </div>
+
+        <!-- Participated Tab -->
+        <div id="tab-participated" class="tab-panel active">
+            {% if participated_rooms %}
+                {% for room in participated_rooms %}
+                {% set my_eval = room.evaluations | selectattr('user_id', 'equalto', user.id) | first | default(None) %}
+                <div class="room-card">
+                    <div class="room-card-inner">
+                        <div class="rc-main">
+                            <div class="rc-title-row">
+                                <span class="rc-title">{{ room.room_name }}</span>
+                                {% if room.status == 'completed' %}
+                                <span class="rc-status-chip completed"><i class="fas fa-check-circle"></i> Completed</span>
+                                {% elif room.status == 'cancelled' %}
+                                <span class="rc-status-chip cancelled"><i class="fas fa-times-circle"></i> Cancelled</span>
+                                {% endif %}
+                            </div>
+                            <div class="rc-topic">
+                                {% if room.topic %}<i class="fas fa-lightbulb" style="color:#f97316;"></i> {{ room.topic.title }}{% else %}<i class="fas fa-question-circle"></i> No topic assigned{% endif %}
+                            </div>
+                            <div class="rc-meta">
+                                <div class="rc-meta-item"><i class="fas fa-calendar"></i> {{ room.formatted_date() }}</div>
+                                <div class="rc-meta-item"><i class="fas fa-clock"></i> {{ room.duration_minutes() }} min</div>
+                                <div class="rc-meta-item"><i class="fas fa-users"></i> {{ room.get_participant_count() }} participants</div>
+                                <div class="rc-meta-item"><i class="fas fa-tag"></i> {{ room.discussion_mode.replace('_',' ').title() }}</div>
+                                {% if room.topic %}<div class="rc-meta-item"><i class="fas fa-layer-group"></i> {{ room.topic.difficulty_level.title() }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="rc-score">
+                            {% if my_eval %}
+                            <div class="rc-score-lbl">Your Score</div>
+                            <div class="rc-score-num">{{ "%.1f"|format(my_eval.overall_score) }}</div>
+                            <div class="rc-grade">{{ my_eval.grade_letter() }}</div>
+                            {% else %}
+                            <div style="color:#334155; font-size:0.78rem; text-align:center;">No evaluation</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="rc-actions">
+                        {% if room.status == 'completed' %}
+                        <a href="/gd-room-results/{{ room.room_id }}" class="btn-sm btn-sm-primary"><i class="fas fa-chart-bar"></i> View Results</a>
+                        {% endif %}
+                        <a href="/group-discussion" class="btn-sm btn-sm-outline"><i class="fas fa-redo"></i> Practice Again</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <h3>No discussions yet</h3>
+                <p>You haven't participated in any group discussions. Join a room to get started!</p>
+                <a href="/group-discussion"><i class="fas fa-plus"></i> Join a Discussion</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Hosted Tab -->
+        <div id="tab-hosted" class="tab-panel">
+            {% if hosted_rooms %}
+                {% for room in hosted_rooms %}
+                <div class="room-card">
+                    <div class="room-card-inner">
+                        <div class="rc-main">
+                            <div class="rc-title-row">
+                                <span class="rc-title">{{ room.room_name }}</span>
+                                <span style="background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.25); color:#f97316; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:600;">
+                                    <i class="fas fa-crown"></i> Host
+                                </span>
+                                {% if room.status == 'completed' %}
+                                <span class="rc-status-chip completed"><i class="fas fa-check-circle"></i> Completed</span>
+                                {% elif room.status == 'cancelled' %}
+                                <span class="rc-status-chip cancelled"><i class="fas fa-times-circle"></i> Cancelled</span>
+                                {% elif room.status == 'waiting' %}
+                                <span class="rc-status-chip" style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);"><i class="fas fa-clock"></i> Waiting</span>
+                                {% elif room.status == 'active' %}
+                                <span class="rc-status-chip" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.2);"><i class="fas fa-circle" style="font-size:0.55rem;"></i> Active</span>
+                                {% endif %}
+                            </div>
+                            <div class="rc-topic">
+                                {% if room.topic %}<i class="fas fa-lightbulb" style="color:#f97316;"></i> {{ room.topic.title }}{% else %}<i class="fas fa-question-circle"></i> No topic assigned{% endif %}
+                            </div>
+                            <div class="rc-meta">
+                                <div class="rc-meta-item"><i class="fas fa-calendar"></i> {{ room.formatted_date() }}</div>
+                                <div class="rc-meta-item"><i class="fas fa-clock"></i> {{ room.duration_minutes() }} min</div>
+                                <div class="rc-meta-item"><i class="fas fa-users"></i> {{ room.get_participant_count() }}/{{ room.max_participants }}</div>
+                                <div class="rc-meta-item"><i class="fas fa-tag"></i> {{ room.discussion_mode.replace('_',' ').title() }}</div>
+                                {% if room.topic %}<div class="rc-meta-item"><i class="fas fa-layer-group"></i> {{ room.topic.difficulty_level.title() }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="rc-score">
+                            {% set hosted_evals = room.evaluations %}
+                            {% if hosted_evals %}
+                            {% set group_avg = hosted_evals | map(attribute='overall_score') | sum / hosted_evals|length %}
+                            <div class="rc-score-lbl">Group Avg</div>
+                            <div class="rc-score-num">{{ "%.1f"|format(group_avg) }}</div>
+                            <div style="font-size:0.7rem; color:#475569;">{{ hosted_evals|length }} evaluations</div>
+                            {% else %}
+                            <div style="color:#334155; font-size:0.78rem; text-align:center;">No evals</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="rc-actions">
+                        {% if room.status in ['waiting', 'active'] %}
+                        <a href="/gd-room/{{ room.room_id }}" class="btn-sm btn-sm-primary"><i class="fas fa-arrow-right"></i> Re-enter Room</a>
+                        {% elif room.status == 'completed' %}
+                        <a href="/gd-room-results/{{ room.room_id }}" class="btn-sm btn-sm-primary"><i class="fas fa-chart-bar"></i> View Results</a>
+                        {% endif %}
+                        <a href="/create-gd-room" class="btn-sm btn-sm-outline"><i class="fas fa-plus"></i> Host New Room</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-crown"></i>
+                <h3>You haven't hosted any rooms yet</h3>
+                <p>Create your own discussion room and invite others to join!</p>
+                <a href="/create-gd-room"><i class="fas fa-plus"></i> Create a Room</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+</body>
+</html>

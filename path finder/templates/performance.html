@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Analytics - Career Development Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #22c55e;
+            --accent: #a855f7;
+            --warning: #f97316;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-border: rgba(59,130,246,0.2);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e3a5f 50%, var(--dark-bg) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.05);
+            animation: float 20s infinite linear;
+        }
+        .floating-orb:nth-child(1) { width: 30px; height: 30px; left: 10%; animation-delay: 0s; }
+        .floating-orb:nth-child(2) { width: 20px; height: 20px; left: 30%; animation-delay: 4s; }
+        .floating-orb:nth-child(3) { width: 40px; height: 40px; left: 50%; animation-delay: 8s; }
+        .floating-orb:nth-child(4) { width: 25px; height: 25px; left: 70%; animation-delay: 12s; }
+        .floating-orb:nth-child(5) { width: 35px; height: 35px; left: 85%; animation-delay: 16s; }
+        @keyframes float {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--dark-border);
+        }
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.1rem; font-weight: 700;
+        }
+        .logo-text { font-size: 1.3rem; font-weight: 800; color: var(--text-primary); }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+        .nav-link {
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(59,130,246,0.15);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        .nav-link.logout-btn { color: #f87171; }
+        .nav-link.logout-btn:hover { background: rgba(248,113,113,0.15); color: #f87171; }
+
+        /* Main layout */
+        .main-content {
+            padding-top: 90px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page header */
+        .page-header {
+            margin-bottom: 3rem;
+            text-align: center;
+            animation: slideInUp 0.8s ease;
+        }
+        .page-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .kpi-card {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--dark-border);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s;
+            animation: slideInUp 0.8s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59,130,246,0.5);
+            box-shadow: 0 20px 40px rgba(59,130,246,0.1);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #60a5fa);
+        }
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        .kpi-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: rgba(59,130,246,0.15);
+            color: var(--primary);
+        }
+        .kpi-icon.green { background: rgba(34,197,94,0.15); color: var(--secondary); }
+        .kpi-icon.purple { background: rgba(168,85,247,0.15); color: var(--accent); }
+        .kpi-icon.orange { background: rgba(249,115,22,0.15); color: var(--warning); }
+        .kpi-trend {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .kpi-trend.up { background: rgba(34,197,94,0.15); color: var(--secondary); }
+        .kpi-trend.neutral { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+        .kpi-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        .kpi-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Section Title */
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chart-title i { color: var(--primary); font-size: 1.1rem; }
+
+        /* Badges Section */
+        .badges-section {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--dark-border);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            animation: slideInUp 0.8s ease;
+        }
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .badge-item {
+            background: rgba(15,23,42,0.5);
+            border-radius: 16px;
+            padding: 1.2rem;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .badge-item.earned {
+            border-color: var(--primary);
+            background: rgba(59,130,246,0.05);
+        }
+        .badge-item.earned::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .badge-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .badge-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .badge-desc {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+        .badge-tier {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-tier.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; }
+        .badge-tier.silver { background: rgba(192,192,192,0.2); color: #c0c0c0; }
+        .badge-tier.gold { background: rgba(255,215,0,0.2); color: #ffd700; }
+        .badge-tier.platinum { background: rgba(229,228,226,0.2); color: #e5e4e2; }
+
+        /* Recent Activity */
+        .activity-section {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--dark-border);
+            padding: 2rem;
+            animation: slideInUp 0.8s ease;
+        }
+        .activity-list { margin-top: 1.5rem; }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .activity-item:hover {
+            background: rgba(59,130,246,0.05);
+            border-color: rgba(59,130,246,0.2);
+        }
+        .activity-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+        }
+        .activity-content { flex: 1; }
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .page-title { font-size: 2.2rem; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .badges-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Animations */
+        @keyframes slideInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+        .kpi-card:nth-child(2) { animation-delay: 0.2s; }
+        .kpi-card:nth-child(3) { animation-delay: 0.3s; }
+        .kpi-card:nth-child(4) { animation-delay: 0.4s; }
+        .kpi-card:nth-child(5) { animation-delay: 0.5s; }
+        .kpi-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">SC</div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/performance" class="nav-link active"><i class="fas fa-chart-line"></i> Performance</a>
+                <a href="/profile" class="nav-link"><i class="fas fa-user"></i> Profile</a>
+                <a href="/logout" class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Performance Analytics</h1>
+                <p class="page-subtitle">Comprehensive insights into your career development journey across all modules</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="kpi-trend {% if readiness_level and readiness_level >= 70 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-arrow-up"></i> {% if readiness_level %}{{ readiness_level }}%{% else %}0%{% endif %}
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ "%.0f"|format(readiness_level) if readiness_level else "0" }}%</div>
+                    <div class="kpi-label">Career Readiness</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon green"><i class="fas fa-pencil-alt"></i></div>
+                        <div class="kpi-trend {% if avg_test_score and avg_test_score >= 70 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-chart-line"></i> {{ total_tests if total_tests else 0 }} tests
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ "%.0f"|format(avg_test_score) if avg_test_score else "0" }}%</div>
+                    <div class="kpi-label">Average Test Score</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon purple"><i class="fas fa-user-tie"></i></div>
+                        <div class="kpi-trend {% if avg_interview_score and avg_interview_score >= 70 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-trophy"></i> {{ completed_interviews if completed_interviews else 0 }}
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ "%.0f"|format(avg_interview_score) if avg_interview_score else "0" }}%</div>
+                    <div class="kpi-label">Interview Performance</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon orange"><i class="fas fa-comments"></i></div>
+                        <div class="kpi-trend {% if avg_gd_score and avg_gd_score >= 70 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-users"></i> {{ total_gd_sessions if total_gd_sessions else 0 }}
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ "%.0f"|format(avg_gd_score) if avg_gd_score else "0" }}%</div>
+                    <div class="kpi-label">Group Discussion</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="kpi-trend {% if avg_resume_score and avg_resume_score >= 70 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-star"></i> {{ total_resumes if total_resumes else 0 }}
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ "%.0f"|format(avg_resume_score) if avg_resume_score else "0" }}%</div>
+                    <div class="kpi-label">Resume Quality</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon green"><i class="fas fa-map-marked-alt"></i></div>
+                        <div class="kpi-trend {% if total_roadmaps and total_roadmaps >= 5 %}up{% else %}neutral{% endif %}">
+                            <i class="fas fa-route"></i> {{ unique_skills if unique_skills else 0 }} skills
+                        </div>
+                    </div>
+                    <div class="kpi-value">{{ total_roadmaps if total_roadmaps else 0 }}</div>
+                    <div class="kpi-label">Roadmaps Created</div>
+                </div>
+            </div>
+
+            <!-- Badges Section -->
+            <div class="badges-section">
+                <h3 class="chart-title">
+                    <i class="fas fa-award"></i>
+                    Achievement Badges
+                </h3>
+                <div class="badges-grid">
+                    {% if badges and badges|length > 0 %}
+                        {% for badge in badges %}
+                        <div class="badge-item {% if badge.earned %}earned{% endif %}">
+                            <div class="badge-tier {{ badge.tier|default('bronze') }}">{{ badge.tier|default('bronze') }}</div>
+                            <div class="badge-icon">{{ badge.icon if badge.icon else '🏆' }}</div>
+                            <div class="badge-name">{{ badge.label|default('Badge') }}</div>
+                            <div class="badge-desc">{{ badge.desc|default('Achievement badge') }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="badge-item">
+                            <div class="badge-tier bronze">bronze</div>
+                            <div class="badge-icon"><i class="fas fa-trophy"></i></div>
+                            <div class="badge-name">No Badges Yet</div>
+                            <div class="badge-desc">Start using the platform to earn achievement badges</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <h3 class="chart-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Activities
+                </h3>
+                <div class="activity-list">
+                    {% if recent_activities and recent_activities|length > 0 %}
+                        {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background-color: {{ activity.color|default('#3b82f6') }}">
+                                <i class="{{ activity.icon|default('fas fa-calendar') }}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ activity.title|default('Unknown Activity') }}</div>
+                                <div class="activity-time">{{ activity.time.strftime('%b %d, %Y at %I:%M %p') if activity.time else 'Unknown Date' }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background-color: #64748b">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">No recent activities</div>
+                                <div class="activity-time">Start exploring features to see your activity timeline</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simplified performance page - charts removed
+        console.log('Performance analytics page loaded');
+    </script>
+</body>
+</html>

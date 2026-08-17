@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test History - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Test Results Grid */
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .aptitude-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .technical-badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .verbal-badge {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .core_engineering-badge {
+            background: rgba(6, 182, 212, 0.2);
+            color: #06b6d4;
+        }
+
+        .hr_interview-badge {
+            background: rgba(236, 72, 153, 0.2);
+            color: #ec4899;
+        }
+
+        .general_knowledge-badge {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        .custom-badge {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .good { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .needs-improvement { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .result-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .test-date {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .review-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .review-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: #3b82f6;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .start-testing-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .start-testing-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Statistics Summary */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .stat-icon.aptitude {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .stat-icon.technical {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .stat-icon.average {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .stat-icon.total {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .result-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-tabs {
+                flex-wrap: wrap;
+            }
+
+            .result-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="/mock-test" class="nav-link">
+                    <i class="fas fa-brain"></i>
+                    Mock Tests
+                </a>
+                <a href="/history" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="/test-history" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i>
+                    Test History
+                </a>
+                <a href="/performance" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Performance
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Test History</h1>
+                <p class="page-subtitle">Track your progress and review past test performances</p>
+            </div>
+
+            {% if test_results %}
+            <!-- Statistics Summary -->
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-value">{{ test_results|length }}</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon aptitude">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="stat-value">{{ test_results|selectattr('category', 'equalto', 'aptitude')|list|length }}</div>
+                    <div class="stat-label">Aptitude Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon technical">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="stat-value">{{ test_results|selectattr('category', 'equalto', 'technical')|list|length }}</div>
+                    <div class="stat-label">Technical Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon average">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value">
+                        {% set ns = namespace(total_pct=0) %}
+                        {% for r in test_results %}
+                            {% set ns.total_pct = ns.total_pct + r.percentage_score() %}
+                        {% endfor %}
+                        {{ (ns.total_pct / test_results|length)|round(1) if test_results|length > 0 else 0 }}%
+                    </div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="tab-btn active" onclick="filterResults('all')">All Tests</button>
+                <button class="tab-btn" onclick="filterResults('aptitude')">Aptitude</button>
+                <button class="tab-btn" onclick="filterResults('technical')">Technical</button>
+            </div>
+
+            <!-- Test Results -->
+            <div class="results-grid" id="resultsGrid">
+                {% for result in test_results %}
+                <div class="result-card" data-category="{{ result.category }}">
+                    <div class="result-header">
+                        <div class="category-badge {{ result.category }}-badge">
+                            {% if result.category == 'custom' %}
+                                <i class="fas fa-lightbulb" style="margin-right:4px"></i>Custom
+                            {% else %}
+                                {{ result.category.replace('_',' ').title() }}
+                            {% endif %}
+                        </div>
+                        <div class="score-circle 
+                            {% if result.percentage_score() >= 90 %}excellent
+                            {% elif result.percentage_score() >= 75 %}good
+                            {% elif result.percentage_score() >= 50 %}needs-improvement
+                            {% else %}poor{% endif %}">
+                            {{ result.percentage_score() }}%
+                        </div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="detail-value">{{ result.score }}</div>
+                            <div class="detail-label">Correct</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">{{ result.total_questions }}</div>
+                            <div class="detail-label">Total</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">{{ '%d:%02d' % (result.time_taken // 60, result.time_taken % 60) }}</div>
+                            <div class="detail-label">Duration</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">{{ result.percentage_score() }}%</div>
+                            <div class="detail-label">Accuracy</div>
+                        </div>
+                    </div>
+
+                    <div class="result-footer">
+                        <div class="test-date">
+                            <i class="fas fa-calendar"></i>
+                            {{ result.formatted_date() }}
+                        </div>
+                        <a href="/test-review/{{ result.id }}" class="review-btn">
+                            <i class="fas fa-eye"></i>
+                            Review
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h2 class="empty-title">No Test History Yet</h2>
+                <p class="empty-description">You haven't taken any tests yet. Start practicing with AI-generated questions!</p>
+                <a href="/mock-test" class="start-testing-btn">
+                    <i class="fas fa-brain"></i>
+                    Start Your First Test
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        function filterResults(category) {
+            const cards = document.querySelectorAll('.result-card');
+            const tabs = document.querySelectorAll('.tab-btn');
+            
+            // Update active tab
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

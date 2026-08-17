@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Results - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        /* ── NAV ── */
+        .navbar {
+            background: rgba(15,23,42,0.97);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed; width:100%; top:0; z-index:1000;
+            border-bottom: 1px solid rgba(16,185,129,0.2);
+        }
+        .nav-content { max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+        .logo-icon {
+            width:42px; height:42px;
+            background: linear-gradient(135deg,#10b981,#059669);
+            border-radius:11px; display:flex; align-items:center; justify-content:center;
+            font-size:1.3rem; color:white;
+        }
+        .logo-text {
+            font-size:1.4rem; font-weight:700;
+            background: linear-gradient(135deg,#fff,#10b981);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        }
+        .nav-links { display:flex; gap:0.6rem; align-items:center; }
+        .nav-link {
+            color:#94a3b8; text-decoration:none; padding:0.55rem 1rem;
+            border-radius:9px; transition:all .25s; display:flex; align-items:center; gap:7px; font-weight:500; font-size:.9rem;
+        }
+        .nav-link:hover { color:#fff; background:rgba(16,185,129,0.15); }
+        .nav-link.logout { background:rgba(239,68,68,.15); color:#f87171; border:1px solid rgba(239,68,68,.25); }
+        .nav-link.logout:hover { background:rgba(239,68,68,.25); }
+
+        /* ── LAYOUT ── */
+        .main-content { padding-top: 96px; min-height:100vh; padding-bottom:60px; }
+        .container { max-width:1100px; margin:0 auto; padding:2rem; }
+
+        .back-link {
+            display:inline-flex; align-items:center; gap:8px; color:#94a3b8;
+            text-decoration:none; padding:.55rem 1rem; background:rgba(30,41,59,.5);
+            border-radius:10px; margin-bottom:2rem; transition:all .25s; font-size:.9rem;
+        }
+        .back-link:hover { color:#fff; background:rgba(16,185,129,.15); }
+
+        /* ── PAGE HEADER ── */
+        .page-header { text-align:center; margin-bottom:2.5rem; }
+        .page-header h1 {
+            font-size:2.2rem; font-weight:800;
+            background: linear-gradient(135deg,#fff,#10b981);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            margin-bottom:.5rem;
+        }
+        .page-header p { color:#94a3b8; font-size:1rem; }
+
+        /* ── FILE INFO BAR ── */
+        .file-bar {
+            background:rgba(30,41,59,.6); border:1px solid rgba(16,185,129,.2);
+            border-radius:16px; padding:1.2rem 1.6rem; margin-bottom:2rem;
+            display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+        }
+        .file-bar-left { display:flex; align-items:center; gap:14px; }
+        .file-icon {
+            width:46px; height:46px; background:linear-gradient(135deg,#10b981,#059669);
+            border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#fff;
+        }
+        .file-name { color:#e2e8f0; font-weight:600; margin-bottom:.2rem; }
+        .file-date { color:#64748b; font-size:.82rem; }
+        .analyzed-badge {
+            background:linear-gradient(135deg,#10b981,#059669); color:#fff;
+            padding:.45rem 1rem; border-radius:20px; font-weight:600; font-size:.85rem;
+            display:flex; align-items:center; gap:6px;
+        }
+
+        /* ── CARD BASE ── */
+        .card {
+            background:rgba(30,41,59,.55); backdrop-filter:blur(18px);
+            border:1px solid rgba(148,163,184,.1); border-radius:20px;
+            padding:2rem; margin-bottom:2rem;
+        }
+        .card-title {
+            font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:1.5rem;
+            display:flex; align-items:center; gap:10px;
+        }
+        .card-title i { color:#10b981; }
+
+        /* ── SCORE HERO ── */
+        .score-hero { text-align:center; }
+        .score-ring-wrap { display:inline-block; position:relative; width:160px; height:160px; margin-bottom:1.2rem; }
+        .score-ring-wrap svg { width:160px; height:160px; transform:rotate(-90deg); }
+        .score-ring-bg { fill:none; stroke:rgba(148,163,184,.15); stroke-width:12; }
+        .score-ring-fill { fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset .8s ease; }
+        .score-ring-fill.excellent { stroke:#10b981; }
+        .score-ring-fill.good      { stroke:#3b82f6; }
+        .score-ring-fill.fair      { stroke:#f59e0b; }
+        .score-ring-fill.poor      { stroke:#ef4444; }
+        .score-center {
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+            text-align:center; pointer-events:none;
+        }
+        .score-num { font-size:2.5rem; font-weight:800; color:#fff; line-height:1; }
+        .score-denom { font-size:.85rem; color:#64748b; }
+        .grade-pill {
+            display:inline-block; padding:.4rem 1.4rem; border-radius:20px; font-weight:700; font-size:1rem; margin-bottom:1.5rem;
+        }
+        .grade-pill.excellent { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
+        .grade-pill.good      { background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; }
+        .grade-pill.fair      { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; }
+        .grade-pill.poor      { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
+
+        /* Sub-scores */
+        .sub-scores { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-top:1.5rem; }
+        .sub-score {
+            background:rgba(15,23,42,.4); border-radius:12px; padding:1rem; text-align:center;
+            border:1px solid rgba(148,163,184,.08);
+        }
+        .sub-score-val { font-size:1.6rem; font-weight:700; color:#10b981; }
+        .sub-score-val span { font-size:.85rem; color:#64748b; }
+        .sub-score-lbl { color:#94a3b8; font-size:.78rem; margin-top:.3rem; }
+
+        /* ── METRICS GRID ── */
+        .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+        .metric-card {
+            background:rgba(15,23,42,.4); border:1px solid rgba(148,163,184,.08);
+            border-radius:14px; padding:1.2rem; display:flex; align-items:center; gap:12px;
+        }
+        .metric-icon {
+            width:44px; height:44px; border-radius:11px; display:flex; align-items:center;
+            justify-content:center; color:#fff; font-size:1.1rem; flex-shrink:0;
+        }
+        .metric-icon.green  { background:linear-gradient(135deg,#10b981,#059669); }
+        .metric-icon.blue   { background:linear-gradient(135deg,#3b82f6,#2563eb); }
+        .metric-icon.yellow { background:linear-gradient(135deg,#f59e0b,#d97706); }
+        .metric-icon.purple { background:linear-gradient(135deg,#8b5cf6,#7c3aed); }
+        .metric-lbl { color:#94a3b8; font-size:.78rem; margin-bottom:.25rem; }
+        .metric-val { color:#e2e8f0; font-size:1rem; font-weight:700; }
+
+        /* ── CHARTS ── */
+        .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+        .chart-box {
+            background:rgba(15,23,42,.4); border-radius:14px; padding:1.5rem;
+            border:1px solid rgba(148,163,184,.08);
+        }
+        .chart-box h5 { color:#e2e8f0; font-size:.95rem; font-weight:600; margin-bottom:1rem; text-align:center; }
+        .chart-box canvas { max-height:240px; }
+
+        /* ── FORMAT ANALYSIS ── */
+        .format-scores { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+        .format-score-box {
+            background:rgba(15,23,42,.4); border-radius:12px; padding:1rem; text-align:center;
+            border:1px solid rgba(148,163,184,.08);
+        }
+        .format-score-box .val { font-size:1.5rem; font-weight:700; color:#10b981; }
+        .format-score-box .val span { font-size:.8rem; color:#64748b; }
+        .format-score-box .lbl { color:#94a3b8; font-size:.78rem; margin-top:.25rem; }
+
+        .tags-row { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.5rem; }
+        .tag {
+            padding:.3rem .85rem; border-radius:16px; font-size:.8rem; font-weight:500;
+        }
+        .tag.green { background:rgba(16,185,129,.15); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+        .tag.amber { background:rgba(245,158,11,.15); color:#fbbf24; border:1px solid rgba(245,158,11,.25); }
+        .tag.red   { background:rgba(239,68,68,.15);  color:#f87171; border:1px solid rgba(239,68,68,.25);  }
+
+        .format-suggestions { margin-top:1.5rem; }
+        .format-suggestions h6 { color:#94a3b8; font-size:.85rem; margin-bottom:.75rem; }
+        .suggestion-row {
+            display:flex; align-items:flex-start; gap:12px; padding:.85rem;
+            background:rgba(15,23,42,.35); border-radius:12px; margin-bottom:.6rem;
+            border-left:3px solid #f59e0b;
+        }
+        .suggestion-row.high   { border-left-color:#ef4444; }
+        .suggestion-row.medium { border-left-color:#f59e0b; }
+        .suggestion-row.low    { border-left-color:#10b981; }
+        .suggestion-priority {
+            padding:.2rem .6rem; border-radius:8px; font-size:.7rem; font-weight:700;
+            flex-shrink:0; margin-top:.1rem;
+        }
+        .p-high   { background:rgba(239,68,68,.2);  color:#f87171; }
+        .p-medium { background:rgba(245,158,11,.2); color:#fbbf24; }
+        .p-low    { background:rgba(16,185,129,.2); color:#34d399; }
+        .suggestion-text p:first-child { color:#e2e8f0; font-size:.9rem; font-weight:600; }
+        .suggestion-text p:last-child  { color:#94a3b8; font-size:.82rem; margin-top:.2rem; }
+
+        /* ── KEYWORD GRID ── */
+        .keyword-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+        .keyword-col h6 { font-size:.9rem; font-weight:600; margin-bottom:.75rem; display:flex; align-items:center; gap:7px; }
+
+        /* ── FEEDBACK 2×2 ── */
+        .feedback-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+        .fb-card {
+            background:rgba(15,23,42,.4); border-radius:14px; padding:1.4rem;
+            border-left:4px solid; border-top:1px solid rgba(148,163,184,.08);
+            border-right:1px solid rgba(148,163,184,.08); border-bottom:1px solid rgba(148,163,184,.08);
+        }
+        .fb-card.strengths  { border-left-color:#10b981; }
+        .fb-card.weaknesses { border-left-color:#ef4444; }
+        .fb-card.suggestions{ border-left-color:#3b82f6; }
+        .fb-card.skills     { border-left-color:#f59e0b; }
+        .fb-head { display:flex; align-items:center; gap:10px; margin-bottom:1rem; }
+        .fb-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:.95rem; }
+        .fb-title { font-size:.95rem; font-weight:700; color:#fff; }
+        .fb-list { list-style:none; }
+        .fb-list li {
+            padding:.45rem 0; border-bottom:1px solid rgba(148,163,184,.07);
+            display:flex; align-items:flex-start; gap:9px; color:#cbd5e1; font-size:.88rem; line-height:1.5;
+        }
+        .fb-list li:last-child { border-bottom:none; }
+        .fb-list li i { flex-shrink:0; margin-top:.2rem; }
+        .empty-msg { color:#64748b; font-size:.85rem; font-style:italic; }
+
+        /* ── ATS ISSUES ── */
+        .ats-list { list-style:none; }
+        .ats-list li {
+            display:flex; align-items:flex-start; gap:10px; padding:.65rem .85rem;
+            background:rgba(239,68,68,.06); border-radius:10px; margin-bottom:.5rem;
+            border:1px solid rgba(239,68,68,.12); color:#fca5a5; font-size:.88rem;
+        }
+        .ats-list li i { color:#ef4444; margin-top:.15rem; flex-shrink:0; }
+
+        /* ── SKILL GAPS ── */
+        .skill-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+        .skill-card {
+            background:rgba(15,23,42,.4); border-radius:13px; padding:1.2rem;
+            border:1px solid rgba(148,163,184,.08); transition:border-color .25s;
+        }
+        .skill-card:hover { border-color:rgba(16,185,129,.3); }
+        .skill-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:.7rem; }
+        .skill-name { color:#e2e8f0; font-weight:600; font-size:.9rem; }
+        .p-badge { padding:.2rem .6rem; border-radius:8px; font-size:.7rem; font-weight:700; }
+        .p-high   { background:rgba(239,68,68,.2);  color:#f87171; }
+        .p-medium { background:rgba(245,158,11,.2); color:#fbbf24; }
+        .p-low    { background:rgba(16,185,129,.2); color:#34d399; }
+        .skill-meta p { color:#94a3b8; font-size:.8rem; margin:.25rem 0; display:flex; align-items:center; gap:6px; }
+        .skill-meta i { color:#10b981; width:14px; }
+
+        /* ── RECRUITER BOX ── */
+        .recruiter-grid { display:grid; grid-template-columns:1fr 2fr; gap:1.5rem; align-items:start; }
+        .hiring-ring-wrap { text-align:center; }
+        .hiring-ring-wrap svg { width:140px; height:140px; transform:rotate(-90deg); }
+        .hire-bg   { fill:none; stroke:rgba(148,163,184,.15); stroke-width:14; }
+        .hire-fill { fill:none; stroke:#10b981; stroke-width:14; stroke-linecap:round; transition:stroke-dashoffset .9s .2s ease; }
+        .hire-center { position:relative; }
+        .hire-num { font-size:2rem; font-weight:800; color:#fff; }
+        .hire-lbl { font-size:.75rem; color:#64748b; }
+        .readiness-pill {
+            display:inline-block; padding:.35rem 1rem; border-radius:20px;
+            font-size:.8rem; font-weight:700; margin-top:.5rem;
+        }
+        .r-excellent { background:rgba(16,185,129,.2); color:#34d399; border:1px solid rgba(16,185,129,.3); }
+        .r-good      { background:rgba(59,130,246,.2); color:#60a5fa; border:1px solid rgba(59,130,246,.3); }
+        .r-fair      { background:rgba(245,158,11,.2); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
+        .r-poor      { background:rgba(239,68,68,.2);  color:#f87171; border:1px solid rgba(239,68,68,.3); }
+        .recruiter-feedback-box {
+            background:rgba(15,23,42,.4); border-radius:14px; padding:1.4rem;
+            border:1px solid rgba(148,163,184,.1); color:#cbd5e1; font-size:.92rem; line-height:1.75;
+        }
+        .recruiter-feedback-box strong { color:#e2e8f0; display:block; margin-bottom:.6rem; font-size:1rem; }
+
+        /* ── TEMPLATES ── */
+        .template-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+        .tmpl-card {
+            background:rgba(15,23,42,.4); border-radius:14px; padding:1.4rem;
+            border:1px solid rgba(148,163,184,.1); transition:all .25s; position:relative;
+        }
+        .tmpl-card:hover { border-color:rgba(16,185,129,.3); transform:translateY(-3px); }
+        .tmpl-card.rec { border-color:#10b981; }
+        .rec-badge {
+            position:absolute; top:-10px; right:14px;
+            background:linear-gradient(135deg,#10b981,#059669); color:#fff;
+            padding:3px 10px; border-radius:10px; font-size:.72rem; font-weight:700;
+        }
+        .tmpl-mockup {
+            background:#1e293b; border-radius:8px; padding:.85rem; margin-bottom:1rem;
+            border:1px solid rgba(148,163,184,.1);
+        }
+        .mock-h { height:14px; background:rgba(16,185,129,.3); border-radius:4px; margin-bottom:7px; }
+        .mock-l { height:7px; background:rgba(148,163,184,.15); border-radius:3px; margin-bottom:5px; }
+        .tmpl-name { color:#e2e8f0; font-weight:700; margin-bottom:.4rem; }
+        .tmpl-desc { color:#94a3b8; font-size:.82rem; margin-bottom:1rem; }
+        .tmpl-btn {
+            display:block; text-align:center; background:linear-gradient(135deg,#10b981,#059669);
+            color:#fff; padding:.7rem; border-radius:10px; text-decoration:none;
+            font-weight:600; font-size:.88rem; transition:all .25s;
+        }
+        .tmpl-btn:hover { box-shadow:0 8px 20px rgba(16,185,129,.35); color:#fff; }
+
+        /* ── ACTION BTNS ── */
+        .action-bar { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-top:2.5rem; }
+        .act-btn {
+            padding:.9rem 1.8rem; border-radius:12px; font-size:.95rem; font-weight:600;
+            text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all .25s;
+        }
+        .act-primary { background:linear-gradient(135deg,#10b981,#059669); color:#fff; }
+        .act-primary:hover { box-shadow:0 10px 28px rgba(16,185,129,.4); transform:translateY(-2px); color:#fff; }
+        .act-outline {
+            background:rgba(148,163,184,.1); color:#94a3b8;
+            border:1px solid rgba(148,163,184,.25);
+        }
+        .act-outline:hover { color:#e2e8f0; background:rgba(148,163,184,.18); transform:translateY(-2px); }
+
+        /* ── SECTION LABEL ── */
+        .section-sub { color:#64748b; font-size:.82rem; margin-bottom:.8rem; font-weight:500; text-transform:uppercase; letter-spacing:.04em; }
+
+        /* ── JOB SUGGESTIONS ── */
+        .jobs-section {
+            background: rgba(30,41,59,0.5);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            border: 1px solid rgba(245,158,11,0.2);
+            margin-bottom: 2rem;
+        }
+        .js-header {
+            padding: 1.4rem 1.6rem;
+            border-bottom: 1px solid rgba(245,158,11,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .js-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .js-title i { color: #f59e0b; }
+        .js-view-all {
+            font-size: 0.82rem; font-weight: 600;
+            color: #60a5fa; text-decoration: none;
+            display: flex; align-items: center; gap: 5px;
+            padding: 0.35rem 0.85rem;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .js-view-all:hover { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        .js-body { padding: 1.4rem 1.6rem; }
+        .js-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 1rem;
+        }
+        .rj-card {
+            background: rgba(15,23,42,0.5);
+            border: 1px solid rgba(59,130,246,0.12);
+            border-radius: 14px;
+            padding: 1.1rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s;
+        }
+        .rj-card:hover {
+            border-color: rgba(245,158,11,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(245,158,11,0.1);
+        }
+        .rj-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.7rem; }
+        .rj-logo {
+            width:40px; height:40px;
+            border-radius:10px;
+            background:linear-gradient(135deg,#1e3a5f,#2563eb);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1rem; font-weight:800; color:#60a5fa;
+            border:1px solid rgba(59,130,246,0.25);
+        }
+        .rj-match {
+            background:linear-gradient(135deg,#065f46,#047857);
+            border:1px solid rgba(16,185,129,0.3);
+            border-radius:20px; padding:0.2rem 0.6rem;
+            font-size:0.7rem; color:#34d399; font-weight:700;
+            display:flex; align-items:center; gap:3px;
+        }
+        .rj-match.medium { background:linear-gradient(135deg,#78350f,#92400e); color:#fbbf24; }
+        .rj-title { font-size:0.88rem; font-weight:700; color:#e2e8f0; margin-bottom:0.2rem; line-height:1.3; }
+        .rj-company { font-size:0.75rem; color:#60a5fa; margin-bottom:0.45rem; }
+        .rj-chips { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.5rem; }
+        .rj-chip { font-size:0.65rem; padding:0.15rem 0.5rem; border-radius:12px; font-weight:500; }
+        .rj-chip.loc { background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.2); }
+        .rj-chip.sal { background:rgba(239,68,68,0.12);  color:#f87171; border:1px solid rgba(239,68,68,0.2); }
+        .rj-chip.lvl { background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.2); }
+        .rj-skills { display:flex; flex-wrap:wrap; gap:0.25rem; margin-bottom:0.5rem; }
+        .rj-skill { background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.18); border-radius:4px; padding:0.12rem 0.4rem; font-size:0.63rem; color:#93c5fd; }
+        .rj-bar-row { display:flex; align-items:center; gap:6px; }
+        .rj-bar-bg { flex:1; height:4px; background:rgba(59,130,246,0.1); border-radius:4px; overflow:hidden; }
+        .rj-bar-fill { height:100%; background:linear-gradient(90deg,#10b981,#34d399); border-radius:4px; transition:width 0.8s ease; }
+        .rj-bar-pct { font-size:0.68rem; color:#34d399; font-weight:700; }
+        @media(max-width:600px) { .js-grid { grid-template-columns:1fr; } }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width:900px) {
+            .sub-scores, .metrics-grid, .format-scores { grid-template-columns:repeat(2,1fr); }
+            .charts-row, .feedback-grid, .keyword-row, .recruiter-grid { grid-template-columns:1fr; }
+            .skill-cards, .template-cards { grid-template-columns:repeat(2,1fr); }
+        }
+        @media (max-width:540px) {
+            .sub-scores, .metrics-grid, .format-scores,
+            .skill-cards, .template-cards { grid-template-columns:1fr; }
+            .file-bar { flex-direction:column; align-items:flex-start; }
+            .nav-links { display:none; }
+            .action-bar { flex-direction:column; }
+            .act-btn { width:100%; justify-content:center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-route"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard"      class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/resume-builder" class="nav-link"><i class="fas fa-file-alt"></i> Resume Builder</a>
+            <a href="/upload-resume"  class="nav-link"><i class="fas fa-upload"></i> Upload Resume</a>
+            <a href="/logout"         class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+<div class="container">
+
+    <a href="/resume-builder" class="back-link"><i class="fas fa-arrow-left"></i> Back to Resume Builder</a>
+
+    <!-- Page header -->
+    <div class="page-header">
+        <h1><i class="fas fa-robot" style="font-size:1.8rem;"></i> AI Resume Analysis</h1>
+        <p>Detailed breakdown of your resume's strengths, weaknesses, and improvement areas</p>
+    </div>
+
+    <!-- File info bar -->
+    <div class="file-bar">
+        <div class="file-bar-left">
+            <div class="file-icon"><i class="fas fa-file-alt"></i></div>
+            <div>
+                <div class="file-name">{{ uploaded_filename }}</div>
+                <div class="file-date"><i class="fas fa-calendar-alt"></i> {{ validation.formatted_date() }}</div>
+            </div>
+        </div>
+        <div class="analyzed-badge"><i class="fas fa-check-circle"></i> Analysis Complete</div>
+    </div>
+
+    <!-- ═══════════════════  SCORE HERO  ═══════════════════ -->
+    {% set grade_class = 'excellent' if validation.overall_score >= 80 else ('good' if validation.overall_score >= 70 else ('fair' if validation.overall_score >= 60 else 'poor')) %}
+    <div class="card score-hero">
+        <div class="card-title" style="justify-content:center;">
+            <i class="fas fa-chart-line"></i> Overall Resume Score
+        </div>
+
+        <!-- SVG ring -->
+        {% set circ = 3.14159 * 2 * 58 %}
+        {% set dash_offset = circ - (circ * validation.overall_score / 100) %}
+        <div class="score-ring-wrap" style="position:relative;">
+            <svg viewBox="0 0 120 120">
+                <circle class="score-ring-bg"   cx="60" cy="60" r="54"/>
+                <circle class="score-ring-fill {{ grade_class }}" cx="60" cy="60" r="54"
+                    stroke-dasharray="{{ circ | round(2) }}"
+                    stroke-dashoffset="{{ dash_offset | round(2) }}"
+                />
+            </svg>
+            <div class="score-center">
+                <div class="score-num">{{ validation.overall_score }}</div>
+                <div class="score-denom">/100</div>
+            </div>
+        </div>
+
+        <div class="grade-pill {{ grade_class }}">Grade: {{ validation.get_grade() }}</div>
+
+        <!-- Sub-scores -->
+        <div class="sub-scores">
+            <div class="sub-score">
+                <div class="sub-score-val">{{ validation.content_score }}<span>/10</span></div>
+                <div class="sub-score-lbl">Content</div>
+            </div>
+            <div class="sub-score">
+                <div class="sub-score-val">{{ validation.structure_score }}<span>/10</span></div>
+                <div class="sub-score-lbl">Structure</div>
+            </div>
+            <div class="sub-score">
+                <div class="sub-score-val">{{ validation.skills_score }}<span>/10</span></div>
+                <div class="sub-score-lbl">Skills Match</div>
+            </div>
+            <div class="sub-score">
+                <div class="sub-score-val">{{ validation.ats_score }}<span>/10</span></div>
+                <div class="sub-score-lbl">ATS Score</div>
+            </div>
+            <div class="sub-score">
+                <div class="sub-score-val">{{ validation.industry_relevance_score or 0 }}<span>/10</span></div>
+                <div class="sub-score-lbl">Relevance</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════  METRICS ROW  ═══════════════════ -->
+    <div class="card" style="padding:1.5rem;">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon blue"><i class="fas fa-bullseye"></i></div>
+                <div>
+                    <div class="metric-lbl">Hiring Probability</div>
+                    <div class="metric-val">{{ validation.hiring_probability or 0 }}%</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon purple"><i class="fas fa-star"></i></div>
+                <div>
+                    <div class="metric-lbl">Interview Readiness</div>
+                    <div class="metric-val">{{ (validation.interview_readiness or 'N/A') | title }}</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon green"><i class="fas fa-chart-bar"></i></div>
+                <div>
+                    <div class="metric-lbl">Top Percentile</div>
+                    <div class="metric-val">{{ validation.benchmarking_list.get('top_percentile', 'N/A') if validation.benchmarking_list else 'N/A' }}{% if validation.benchmarking_list and validation.benchmarking_list.get('top_percentile') %}%{% endif %}</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon yellow"><i class="fas fa-rocket"></i></div>
+                <div>
+                    <div class="metric-lbl">Improvement Potential</div>
+                    <div class="metric-val">{{ (validation.benchmarking_list.get('improvement_potential', 'Moderate') | title) if validation.benchmarking_list else 'Moderate' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════  VISUAL CHARTS  ═══════════════════ -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-chart-bar"></i> Visual Analytics</div>
+        <div class="charts-row">
+            <div class="chart-box">
+                <h5>Score Breakdown (Radar)</h5>
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h5>Hiring Probability (Gauge)</h5>
+                <canvas id="gaugeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════  FORMAT ANALYSIS  ═══════════════════ -->
+    {% if format_analysis %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-file-contract"></i> Format & Structure Analysis</div>
+
+        <div class="format-scores">
+            <div class="format-score-box">
+                <div class="val">{{ format_analysis.get('format_score', '—') }}<span>/10</span></div>
+                <div class="lbl">Format Score</div>
+            </div>
+            <div class="format-score-box">
+                <div class="val">{{ format_analysis.get('readability_score', '—') }}<span>/10</span></div>
+                <div class="lbl">Readability</div>
+            </div>
+            <div class="format-score-box">
+                <div class="val">{{ format_analysis.get('ats_compatibility', '—') }}<span>/10</span></div>
+                <div class="lbl">ATS Compat.</div>
+            </div>
+            <div class="format-score-box">
+                <div class="val" style="font-size:1rem;">{{ (format_analysis.get('format_type', 'Standard')) | title }}</div>
+                <div class="lbl">Resume Type</div>
+            </div>
+        </div>
+
+        {% if format_analysis.get('sections_found') %}
+        <div class="section-sub">Sections Found</div>
+        <div class="tags-row">
+            {% for s in format_analysis.sections_found %}<span class="tag green">{{ s }}</span>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if format_analysis.get('missing_sections') %}
+        <div class="section-sub" style="margin-top:1rem;">Missing Sections</div>
+        <div class="tags-row">
+            {% for s in format_analysis.missing_sections %}<span class="tag red">{{ s }}</span>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if format_analysis.get('format_suggestions') %}
+        <div class="format-suggestions">
+            <div class="section-sub" style="margin-top:1.5rem;">Format Suggestions</div>
+            {% for sug in format_analysis.format_suggestions %}
+            <div class="suggestion-row {{ sug.get('priority', 'medium') }}">
+                <span class="suggestion-priority p-{{ sug.get('priority', 'medium') }}">
+                    {{ (sug.get('priority', 'medium')) | upper }}
+                </span>
+                <div class="suggestion-text">
+                    <p>{{ sug.get('issue', '') }}</p>
+                    <p>{{ sug.get('suggestion', '') }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════  KEYWORDS  ═══════════════════ -->
+    {% if validation.keyword_analysis_list %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-tags"></i> Keyword Analysis</div>
+        <div class="keyword-row">
+            <div>
+                <h6 class="section-sub" style="color:#34d399;"><i class="fas fa-check-circle"></i> Present Keywords</h6>
+                <div class="tags-row">
+                    {% for kw in validation.keyword_analysis_list.get('present_keywords', []) %}
+                    <span class="tag green">{{ kw }}</span>
+                    {% else %}
+                    <span class="empty-msg">No keywords data available</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h6 class="section-sub" style="color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> Missing Keywords</h6>
+                <div class="tags-row">
+                    {% for kw in validation.keyword_analysis_list.get('missing_keywords', []) %}
+                    <span class="tag amber">{{ kw }}</span>
+                    {% else %}
+                    <span class="empty-msg">No missing keywords identified</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════  FEEDBACK 2×2  ═══════════════════ -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-comments"></i> Detailed AI Feedback</div>
+        <div class="feedback-grid">
+
+            <div class="fb-card strengths">
+                <div class="fb-head">
+                    <div class="fb-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-thumbs-up"></i></div>
+                    <span class="fb-title">Strengths</span>
+                </div>
+                <ul class="fb-list">
+                    {% for item in validation.strengths_list %}
+                    <li><i class="fas fa-check-circle" style="color:#10b981;"></i> {{ item }}</li>
+                    {% else %}
+                    <li><span class="empty-msg">No strengths data</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="fb-card weaknesses">
+                <div class="fb-head">
+                    <div class="fb-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-exclamation-triangle"></i></div>
+                    <span class="fb-title">Areas for Improvement</span>
+                </div>
+                <ul class="fb-list">
+                    {% for item in validation.weaknesses_list %}
+                    <li><i class="fas fa-times-circle" style="color:#ef4444;"></i> {{ item }}</li>
+                    {% else %}
+                    <li><span class="empty-msg">No weakness data</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="fb-card suggestions">
+                <div class="fb-head">
+                    <div class="fb-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-lightbulb"></i></div>
+                    <span class="fb-title">Suggestions</span>
+                </div>
+                <ul class="fb-list">
+                    {% for item in validation.suggestions_list %}
+                    <li><i class="fas fa-arrow-right" style="color:#3b82f6;"></i> {{ item }}</li>
+                    {% else %}
+                    <li><span class="empty-msg">No suggestions data</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="fb-card skills">
+                <div class="fb-head">
+                    <div class="fb-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-plus-circle"></i></div>
+                    <span class="fb-title">Missing Skills</span>
+                </div>
+                <ul class="fb-list">
+                    {% for item in validation.missing_skills_list %}
+                    <li><i class="fas fa-plus" style="color:#f59e0b;"></i> {{ item }}</li>
+                    {% else %}
+                    <li><span class="empty-msg">No missing skills identified</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════  ATS ISSUES  ═══════════════════ -->
+    {% if validation.ats_issues_list %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-robot"></i> ATS Compatibility Issues</div>
+        <ul class="ats-list">
+            {% for issue in validation.ats_issues_list %}
+            <li><i class="fas fa-exclamation-circle"></i> {{ issue }}</li>
+            {% else %}
+            <li><i class="fas fa-check-circle" style="color:#10b981;"></i> No ATS issues detected — great!</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════  SKILL GAP ANALYSIS  ═══════════════════ -->
+    {% if skill_data and skill_data.get('learning_roadmap', {}).get('priority_skills') %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-graduation-cap"></i> Priority Skills to Master</div>
+        <div class="skill-cards">
+            {% for skill in skill_data.learning_roadmap.priority_skills[:6] %}
+            <div class="skill-card">
+                <div class="skill-top">
+                    <span class="skill-name">{{ skill.get('skill', 'Skill') }}</span>
+                    {% set p = skill.get('priority', 5) %}
+                    <span class="p-badge {% if p >= 8 %}p-high{% elif p >= 5 %}p-medium{% else %}p-low{% endif %}">P{{ p }}</span>
+                </div>
+                <div class="skill-meta">
+                    <p><i class="fas fa-clock"></i> {{ skill.get('estimated_timeline', 'TBD') }}</p>
+                    <p><i class="fas fa-chart-line"></i> {{ (skill.get('career_impact', 'Medium')) | title }} Impact</p>
+                    {% if skill.get('resources') %}
+                    <p><i class="fas fa-link"></i> {{ skill.get('resources', [''])[0] if skill.get('resources') else '' }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════  RECRUITER SIMULATION  ═══════════════════ -->
+    {% if validation.recruiter_feedback %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-user-tie"></i> Recruiter Simulation</div>
+        <div class="recruiter-grid">
+            <!-- Hiring probability ring -->
+            {% set hp = validation.hiring_probability or 0 %}
+            {% set hp_circ = 3.14159 * 2 * 50 %}
+            {% set hp_offset = hp_circ - (hp_circ * hp / 100) %}
+            <div class="hiring-ring-wrap">
+                <div style="position:relative; display:inline-block;">
+                    <svg viewBox="0 0 110 110" width="140" height="140" style="transform:rotate(-90deg)">
+                        <circle class="hire-bg" cx="55" cy="55" r="46"/>
+                        <circle class="hire-fill" cx="55" cy="55" r="46"
+                            stroke-dasharray="{{ hp_circ | round(2) }}"
+                            stroke-dashoffset="{{ hp_offset | round(2) }}"/>
+                    </svg>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                        <div class="hire-num">{{ hp }}%</div>
+                        <div class="hire-lbl">Hire Chance</div>
+                    </div>
+                </div>
+                {% set ir = validation.interview_readiness or 'fair' %}
+                <div>
+                    <div style="color:#94a3b8;font-size:.78rem;margin-bottom:.35rem;">Interview Readiness</div>
+                    <span class="readiness-pill r-{{ ir }}">{{ ir | title }}</span>
+                </div>
+            </div>
+            <!-- Feedback text -->
+            <div class="recruiter-feedback-box">
+                <strong><i class="fas fa-quote-left" style="color:#10b981;margin-right:8px;"></i>Recruiter's View</strong>
+                {{ validation.recruiter_feedback }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════  TEMPLATE RECOMMENDATIONS  ═══════════════════ -->
+    {% if templates %}
+    <div class="card">
+        <div class="card-title"><i class="fas fa-magic"></i> Recommended Resume Templates</div>
+        <div class="template-cards">
+            {% for template_id, template in templates.items() %}{% if loop.index <= 3 %}
+            <div class="tmpl-card {% if template_id in recommended_templates %}rec{% endif %}">
+                {% if template_id in recommended_templates %}<span class="rec-badge"><i class="fas fa-star"></i> Recommended</span>{% endif %}
+                <div class="tmpl-mockup">
+                    <div class="mock-h"></div>
+                    <div class="mock-l" style="width:75%"></div>
+                    <div class="mock-l" style="width:55%"></div>
+                    <div class="mock-l" style="width:85%"></div>
+                    <div class="mock-l" style="width:65%"></div>
+                </div>
+                <div class="tmpl-name">{{ template.name }}</div>
+                <div class="tmpl-desc">{{ template.description[:90] }}{% if template.description|length > 90 %}…{% endif %}</div>
+                <a href="/generate-from-template/{{ template_id }}" class="tmpl-btn"><i class="fas fa-rocket"></i> Use This Template</a>
+            </div>
+            {% endif %}{% endfor %}
+        </div>
+        <div style="text-align:center;margin-top:1.5rem;">
+            <a href="/resume-templates" class="act-btn act-outline"><i class="fas fa-eye"></i> View All Templates</a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- ───── AI JOB SUGGESTIONS (resume-based) ───── -->
+    {% if job_suggestions %}
+    <div class="jobs-section">
+        <div class="js-header">
+            <div class="js-title">
+                <i class="fas fa-briefcase"></i> Jobs Matched to Your Resume
+            </div>
+            <a href="/job-suggestions" class="js-view-all">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="js-body">
+            <div class="js-grid" id="uploadJobsGrid">
+                {% for job in job_suggestions %}
+                <a href="/job-suggestions/detail/{{ job.id }}" class="rj-card">
+                    <div class="rj-top">
+                        <div class="rj-logo">{{ job.title[0].upper() if job.title else 'J' }}</div>
+                        <div class="rj-match {{ 'medium' if job.match_score < 80 else '' }}">
+                            <i class="fas fa-bolt"></i> {{ job.match_score }}% Match
+                        </div>
+                    </div>
+                    <div class="rj-title">{{ job.title }}</div>
+                    <div class="rj-company"><i class="fas fa-building" style="margin-right:4px;opacity:.7"></i>{{ job.company }}</div>
+                    <div class="rj-chips">
+                        <span class="rj-chip loc"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+                        <span class="rj-chip sal"><i class="fas fa-rupee-sign"></i> {{ job.salary_range }}</span>
+                        <span class="rj-chip lvl"><i class="fas fa-user-tie"></i> {{ job.experience_level }}</span>
+                    </div>
+                    <div class="rj-skills">
+                        {% for sk in job.skills_required[:4] %}
+                        <span class="rj-skill">{{ sk }}</span>
+                        {% endfor %}
+                        {% if job.skills_required|length > 4 %}
+                        <span class="rj-skill">+{{ job.skills_required|length - 4 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="rj-bar-row">
+                        <div class="rj-bar-bg">
+                            <div class="rj-bar-fill" data-pct="{{ job.match_score }}"></div>
+                        </div>
+                        <span class="rj-bar-pct">{{ job.match_score }}%</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action bar -->
+    <div class="action-bar">
+        <a href="/create-resume"   class="act-btn act-primary"><i class="fas fa-plus-circle"></i> Create New Resume</a>
+        <a href="/upload-resume"   class="act-btn act-outline"><i class="fas fa-upload"></i> Upload Another</a>
+        <a href="/resume-templates"class="act-btn act-outline"><i class="fas fa-layer-group"></i> Browse Templates</a>
+        <a href="/job-suggestions" class="act-btn act-outline" style="border-color:rgba(245,158,11,0.35);color:#fbbf24;"><i class="fas fa-briefcase"></i> Explore All Jobs</a>
+    </div>
+
+</div>
+</main>
+
+<script>
+// ── Radar chart (score breakdown)
+const radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+        labels: ['Content', 'Structure', 'Skills', 'ATS', 'Relevance'],
+        datasets: [
+            {
+                label: 'Your Resume',
+                data: [
+                    {{ validation.content_score }},
+                    {{ validation.structure_score }},
+                    {{ validation.skills_score }},
+                    {{ validation.ats_score }},
+                    {{ validation.industry_relevance_score or 0 }}
+                ],
+                backgroundColor: 'rgba(16,185,129,0.18)',
+                borderColor: '#10b981',
+                borderWidth: 2,
+                pointBackgroundColor: '#10b981',
+                pointRadius: 4
+            },
+            {
+                label: 'Industry Avg',
+                data: [7, 7, 6, 7, 6],
+                backgroundColor: 'rgba(148,163,184,0.08)',
+                borderColor: 'rgba(148,163,184,0.4)',
+                borderWidth: 1.5,
+                pointBackgroundColor: 'rgba(148,163,184,0.4)',
+                pointRadius: 3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 } } } },
+        scales: {
+            r: {
+                min: 0, max: 10,
+                ticks: { stepSize: 2, color: '#64748b', backdropColor: 'transparent' },
+                grid: { color: 'rgba(148,163,184,0.15)' },
+                pointLabels: { color: '#94a3b8', font: { size: 12 } }
+            }
+        }
+    }
+});
+
+// ── Doughnut gauge (hiring probability)
+const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+const hp = {{ validation.hiring_probability or 0 }};
+new Chart(gaugeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Hire Probability', 'Remaining'],
+        datasets: [{
+            data: [hp, 100 - hp],
+            backgroundColor: [
+                hp >= 70 ? 'rgba(16,185,129,0.8)' : hp >= 50 ? 'rgba(245,158,11,0.8)' : 'rgba(239,68,68,0.8)',
+                'rgba(30,41,59,0.5)'
+            ],
+            borderColor: [
+                hp >= 70 ? '#10b981' : hp >= 50 ? '#f59e0b' : '#ef4444',
+                'rgba(30,41,59,0.8)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 } } },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ` ${ctx.label}: ${ctx.raw}%`
+                }
+            }
+        }
+    }
+});
+
+// ── Animate job suggestion match bars
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.rj-bar-fill').forEach(function (bar) {
+        const pct = bar.getAttribute('data-pct') || '0';
+        bar.style.width = '0%';
+        setTimeout(function () { bar.style.width = pct + '%'; }, 600);
+    });
+});
+</script>
+</body>
+</html>

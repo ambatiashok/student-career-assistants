@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Discussion - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        .top-nav {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .nav-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-link { color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .nav-link:hover, .nav-link.active { color: #f97316; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+
+        .hero {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+        }
+        .hero-text h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        .hero-text p { color: #94a3b8; font-size: 1rem; line-height: 1.7; max-width: 540px; }
+        .hero-actions { display: flex; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 13px 26px; border-radius: 12px; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; border: none; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(249,115,22,0.35); }
+        .btn-outline { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+        .btn-outline:hover { background: rgba(249,115,22,0.22); }
+
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px;
+        }
+        .stat-card {
+            background: rgba(15,23,42,0.9); border-radius: 16px; padding: 22px;
+            border: 1px solid rgba(249,115,22,0.12); text-align: center; transition: border-color 0.3s;
+        }
+        .stat-card:hover { border-color: rgba(249,115,22,0.35); }
+        .stat-icon { font-size: 1.7rem; color: #f97316; margin-bottom: 8px; }
+        .stat-number { font-size: 2rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .stat-label { color: #64748b; font-size: 0.83rem; }
+
+        .active-room-banner {
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between; gap: 15px;
+        }
+        .banner-left { display: flex; align-items: center; gap: 14px; }
+        .banner-icon { font-size: 1.6rem; color: #22c55e; }
+        .banner-title { color: #22c55e; font-weight: 600; margin-bottom: 3px; }
+        .banner-sub { color: #86efac; font-size: 0.85rem; }
+        .btn-rejoin {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white; padding: 10px 22px; border-radius: 10px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            white-space: nowrap; transition: all 0.3s;
+        }
+        .btn-rejoin:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(34,197,94,0.3); }
+
+        .main-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+
+        .panel {
+            background: rgba(15,23,42,0.9); border-radius: 20px;
+            border: 1px solid rgba(249,115,22,0.12); overflow: hidden; margin-bottom: 20px;
+        }
+        .panel:last-child { margin-bottom: 0; }
+        .panel-head {
+            padding: 20px 24px; border-bottom: 1px solid rgba(249,115,22,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .panel-title { font-size: 1.1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .panel-title i { color: #f97316; }
+        .panel-sub { color: #64748b; font-size: 0.82rem; }
+        .panel-body { padding: 20px 24px; }
+
+        .join-row {
+            display: flex; gap: 10px; padding: 16px;
+            background: rgba(30,58,95,0.3); border-radius: 12px; border: 1px solid rgba(249,115,22,0.1);
+        }
+        .join-input {
+            flex: 1; background: rgba(15,23,42,0.8); border: 1px solid rgba(249,115,22,0.2);
+            color: #e2e8f0; padding: 11px 14px; border-radius: 9px; font-size: 1rem;
+            font-family: 'Inter', sans-serif; letter-spacing: 4px; text-align: center; font-weight: 600;
+        }
+        .join-input:focus { outline: none; border-color: #f97316; }
+        .join-input::placeholder { letter-spacing: 0; color: #475569; font-weight: 400; }
+        .btn-go {
+            background: linear-gradient(135deg, #f97316, #ea580c); color: white; border: none;
+            padding: 11px 22px; border-radius: 9px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-go:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(249,115,22,0.3); }
+
+        .room-card {
+            background: rgba(30,58,95,0.35); border-radius: 14px; padding: 18px;
+            border: 1px solid rgba(249,115,22,0.08); transition: all 0.3s;
+            display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px;
+        }
+        .room-card:last-child { margin-bottom: 0; }
+        .room-card:hover { border-color: rgba(249,115,22,0.3); transform: translateX(3px); }
+        .rc-info { flex: 1; min-width: 0; }
+        .rc-name { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rc-meta { color: #64748b; font-size: 0.82rem; display: flex; gap: 10px; flex-wrap: wrap; }
+        .rc-meta span { display: flex; align-items: center; gap: 4px; }
+        .rc-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; }
+        .b-waiting { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+        .b-active { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .b-easy { background: rgba(34,197,94,0.12); color: #22c55e; }
+        .b-medium { background: rgba(251,191,36,0.12); color: #fbbf24; }
+        .b-hard { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .btn-join-room {
+            background: rgba(249,115,22,0.12); color: #f97316;
+            border: 1px solid rgba(249,115,22,0.25); padding: 7px 15px; border-radius: 8px;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap;
+        }
+        .btn-join-room:hover { background: rgba(249,115,22,0.25); }
+
+        .empty-box {
+            text-align: center; padding: 45px 20px; color: #475569;
+        }
+        .empty-box i { font-size: 2.5rem; opacity: 0.35; margin-bottom: 14px; display: block; }
+        .empty-box h3 { font-size: 1rem; color: #64748b; margin-bottom: 6px; }
+        .empty-box p { font-size: 0.85rem; }
+
+        /* Sidebar */
+        .sidebar-panel { background: rgba(15,23,42,0.9); border-radius: 20px; border: 1px solid rgba(249,115,22,0.12); overflow: hidden; margin-bottom: 20px; }
+
+        .eval-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; background: rgba(30,58,95,0.3); border-radius: 10px; margin-bottom: 10px;
+        }
+        .eval-score-box {
+            width: 46px; height: 46px; border-radius: 10px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700; color: white; flex-shrink: 0;
+        }
+        .eval-detail .eval-name { font-size: 0.88rem; font-weight: 500; color: #e2e8f0; margin-bottom: 2px; }
+        .eval-detail .eval-date { font-size: 0.78rem; color: #475569; }
+
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .cat-item {
+            background: rgba(30,58,95,0.3); border-radius: 10px; padding: 12px;
+            text-align: center; border: 1px solid rgba(249,115,22,0.06);
+        }
+        .cat-icon { font-size: 1.3rem; margin-bottom: 5px; }
+        .cat-name { font-size: 0.76rem; color: #64748b; margin-bottom: 3px; }
+        .cat-count { font-size: 1.1rem; font-weight: 700; color: #f97316; }
+
+        .tip-item {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 11px; background: rgba(30,58,95,0.3); border-radius: 9px; margin-bottom: 9px;
+        }
+        .tip-item i { color: #f97316; margin-top: 3px; flex-shrink: 0; }
+        .tip-item span { font-size: 0.84rem; color: #94a3b8; line-height: 1.5; }
+
+        .flash-wrap { margin-bottom: 20px; }
+        .flash-msg { padding: 13px 18px; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .flash-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: #bbf7d0; }
+        .flash-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fecaca; }
+
+        .toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: rgba(15,23,42,0.98); border: 1px solid rgba(249,115,22,0.4);
+            color: #e2e8f0; padding: 13px 20px; border-radius: 12px; font-size: 0.9rem; z-index: 9999;
+            transform: translateY(80px); opacity: 0; transition: all 0.35s; max-width: 320px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.err { border-color: rgba(239,68,68,0.4); }
+        .toast.ok { border-color: rgba(34,197,94,0.4); }
+
+        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .hero { flex-direction: column; }
+            .hero-text h1 { font-size: 1.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/dashboard" class="nav-brand"><i class="fas fa-route"></i> Student Career Assistant</a>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/group-discussion" class="nav-link active"><i class="fas fa-comments"></i> GD Arena</a>
+            <a href="/mock-test" class="nav-link"><i class="fas fa-brain"></i> Mock Test</a>
+            <a href="/resume-builder" class="nav-link"><i class="fas fa-file-alt"></i> Resume</a>
+            <a href="/generate-roadmap" class="nav-link"><i class="fas fa-map"></i> Roadmap</a>
+            <a href="/profile" class="nav-link"><i class="fas fa-user"></i> {{ user.name.split()[0] }}</a>
+            <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        <div class="flash-wrap">
+            {% for cat, msg in messages %}
+            <div class="flash-msg flash-{{ cat }}">
+                <i class="fas fa-{% if cat == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-text">
+                <h1><i class="fas fa-comments" style="-webkit-text-fill-color:#f97316; font-size:2.2rem; margin-right:8px;"></i>GD Arena</h1>
+                <p>Join live group discussions, get AI-powered real-time feedback, and sharpen your communication and leadership skills for placements and interviews.</p>
+            </div>
+            <div class="hero-actions">
+                <a href="/create-gd-room" class="btn btn-primary"><i class="fas fa-plus"></i> Create Room</a>
+                <a href="/gd-room-history" class="btn btn-outline"><i class="fas fa-history"></i> My History</a>
+            </div>
+        </div>
+
+        {% if current_room %}
+        <div class="active-room-banner">
+            <div class="banner-left">
+                <div class="banner-icon"><i class="fas fa-door-open"></i></div>
+                <div>
+                    <div class="banner-title">You have an active room!</div>
+                    <div class="banner-sub"><strong>{{ current_room.room_name }}</strong> &nbsp;·&nbsp; ID: <strong>{{ current_room.room_id }}</strong> &nbsp;·&nbsp; {{ current_room.status.title() }}</div>
+                </div>
+            </div>
+            <a href="/gd-room/{{ current_room.room_id }}" class="btn-rejoin"><i class="fas fa-sign-in-alt"></i> Rejoin</a>
+        </div>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+                <div class="stat-number">{{ available_rooms|length }}</div>
+                <div class="stat-label">Open Rooms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-number">{{ completed_rooms }}</div>
+                <div class="stat-label">Sessions Done</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-number">{{ avg_score }}<small style="font-size:0.9rem">/10</small></div>
+                <div class="stat-label">Avg Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                <div class="stat-number">{{ recent_evaluations|length }}</div>
+                <div class="stat-label">Recent Evals</div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Join by ID -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-hashtag"></i> Join by Room ID</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="join-row">
+                            <input type="text" class="join-input" id="joinInput" maxlength="6" placeholder="Enter 6-digit Room ID" oninput="this.value=this.value.replace(/\D/g,'')">
+                            <button class="btn-go" onclick="joinById()"><i class="fas fa-arrow-right"></i> Join</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Rooms -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-list"></i> Available Rooms</div>
+                        <span class="panel-sub">{{ available_rooms|length }} room{{ 's' if available_rooms|length != 1 else '' }} open</span>
+                    </div>
+                    <div class="panel-body">
+                        {% if available_rooms %}
+                            {% for room in available_rooms %}
+                            <div class="room-card">
+                                <div class="rc-info">
+                                    <div class="rc-name">{{ room.room_name }}</div>
+                                    <div class="rc-meta">
+                                        <span><i class="fas fa-hashtag"></i> {{ room.room_id }}</span>
+                                        <span><i class="fas fa-users"></i> {{ room.get_participant_count() }}/{{ room.max_participants }}</span>
+                                        {% if room.topic %}<span><i class="fas fa-tag"></i> {{ room.topic.topic_type.replace('_',' ').title() }}</span>{% endif %}
+                                    </div>
+                                </div>
+                                <div class="rc-right">
+                                    <span class="badge b-{{ room.status }}">{{ room.status.title() }}</span>
+                                    {% if room.topic %}<span class="badge b-{{ room.topic.difficulty_level }}">{{ room.topic.difficulty_level.title() }}</span>{% endif %}
+                                    <button class="btn-join-room" onclick="joinRoom('{{ room.room_id }}')"><i class="fas fa-sign-in-alt"></i> Join</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-box">
+                            <i class="fas fa-door-closed"></i>
+                            <h3>No open rooms right now</h3>
+                            <p>Be the first — create a room and invite friends!</p>
+                            <a href="/create-gd-room" class="btn btn-primary" style="margin-top:18px; display:inline-flex;"><i class="fas fa-plus"></i> Create Room</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div>
+                <!-- Recent Scores -->
+                <div class="sidebar-panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-medal"></i> Recent Scores</div>
+                        <a href="/gd-room-history" style="color:#f97316; font-size:0.82rem; text-decoration:none;">View all →</a>
+                    </div>
+                    <div class="panel-body">
+                        {% if recent_evaluations %}
+                            {% for ev in recent_evaluations %}
+                            <div class="eval-row">
+                                <div class="eval-score-box">{{ ev.overall_score|int }}</div>
+                                <div class="eval-detail">
+                                    <div class="eval-name">{{ ev.room.room_name if ev.room else 'Discussion' }}</div>
+                                    <div class="eval-date">{{ ev.formatted_date() }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-box" style="padding:25px 10px">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>No evaluations yet. Complete a session to see your scores.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="sidebar-panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-layer-group"></i> Topics Practiced</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="cat-grid">
+                            <div class="cat-item">
+                                <div class="cat-icon">🌍</div>
+                                <div class="cat-name">Social</div>
+                                <div class="cat-count">{{ category_stats.get('social', 0) }}</div>
+                            </div>
+                            <div class="cat-item">
+                                <div class="cat-icon">💻</div>
+                                <div class="cat-name">Technology</div>
+                                <div class="cat-count">{{ category_stats.get('technology', 0) }}</div>
+                            </div>
+                            <div class="cat-item">
+                                <div class="cat-icon">📈</div>
+                                <div class="cat-name">Economy</div>
+                                <div class="cat-count">{{ category_stats.get('economy', 0) }}</div>
+                            </div>
+                            <div class="cat-item">
+                                <div class="cat-icon">🧠</div>
+                                <div class="cat-name">Abstract</div>
+                                <div class="cat-count">{{ category_stats.get('abstract', 0) }}</div>
+                            </div>
+                        </div>
+                        <div class="cat-item" style="margin-top:8px;">
+                            <div class="cat-icon">📋</div>
+                            <div class="cat-name">Case Study</div>
+                            <div class="cat-count">{{ category_stats.get('case_study', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="sidebar-panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-lightbulb"></i> GD Tips</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="tip-item"><i class="fas fa-microphone"></i><span>Open strong — give a clear, concise intro that frames the discussion.</span></div>
+                        <div class="tip-item"><i class="fas fa-balance-scale"></i><span>Acknowledge other views before countering — shows maturity and listening skills.</span></div>
+                        <div class="tip-item"><i class="fas fa-star"></i><span>Back every claim with a fact, example, or data point for higher content scores.</span></div>
+                        <div class="tip-item" style="margin-bottom:0"><i class="fas fa-flag-checkered"></i><span>Summarise at the end to show leadership and wrap up effectively.</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show ${type}`;
+            setTimeout(() => { t.className = 'toast'; }, 3500);
+        }
+
+        function joinRoom(roomId) {
+            fetch('/join-gd-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: roomId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    showToast(data.error || 'Could not join room.', 'err');
+                }
+            })
+            .catch(() => showToast('Network error. Try again.', 'err'));
+        }
+
+        function joinById() {
+            const id = document.getElementById('joinInput').value.trim();
+            if (id.length !== 6) { showToast('Please enter a valid 6-digit Room ID.', 'err'); return; }
+            joinRoom(id);
+        }
+
+        document.getElementById('joinInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') joinById();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room.room_name }} — Live Discussion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh; color: #e2e8f0; overflow: hidden;
+        }
+
+        /* Top Bar */
+        .topbar {
+            background: rgba(15,23,42,0.97); border-bottom: 1px solid rgba(249,115,22,0.22);
+            padding: 12px 22px; display: flex; justify-content: space-between; align-items: center;
+            height: 60px; position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            backdrop-filter: blur(12px);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .room-title { font-size: 1.05rem; font-weight: 700; color: #fff; }
+        .room-topic-badge {
+            background: rgba(249,115,22,0.12); color: #f97316;
+            border: 1px solid rgba(249,115,22,0.25); padding: 4px 12px;
+            border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+            max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .topbar-center { display: flex; align-items: center; gap: 20px; }
+        .timer-box { text-align: center; }
+        .timer-val { font-size: 1.5rem; font-weight: 800; color: #f97316; font-family: 'Courier New', monospace; line-height: 1; }
+        .timer-lbl { font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 1px; }
+        .timer-box.warning .timer-val { color: #ef4444; animation: flash 1s infinite; }
+        @keyframes flash { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        .topbar-right { display: flex; gap: 10px; align-items: center; }
+        .btn-sm {
+            padding: 7px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; border: none; transition: all 0.25s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-end { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .btn-end:hover { background: rgba(239,68,68,0.3); }
+        .btn-leave { background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.25); }
+        .btn-leave:hover { background: rgba(249,115,22,0.2); }
+
+        /* Layout */
+        .layout {
+            display: grid; grid-template-columns: 230px 1fr 240px;
+            height: calc(100vh - 60px); margin-top: 60px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(10,20,40,0.6); border-right: 1px solid rgba(249,115,22,0.1);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .sidebar-right { border-right: none; border-left: 1px solid rgba(249,115,22,0.1); }
+        .sb-section { padding: 16px; border-bottom: 1px solid rgba(249,115,22,0.08); }
+        .sb-title { font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+        /* Participants in sidebar */
+        .p-item {
+            display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+            border-radius: 10px; margin-bottom: 6px; transition: background 0.2s;
+        }
+        .p-item.speaking { background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25); }
+        .p-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: white; flex-shrink: 0; position: relative;
+        }
+        .p-avatar.me { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .speaking-dot {
+            position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px;
+            background: #22c55e; border-radius: 50%; border: 2px solid #0f172a;
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+        .p-info { flex: 1; min-width: 0; }
+        .p-name { font-size: 0.82rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-stat { font-size: 0.7rem; color: #475569; }
+        .p-item.speaking .p-name { color: #f97316; }
+
+        /* Stats in right sidebar */
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(249,115,22,0.06); }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-key { font-size: 0.78rem; color: #64748b; }
+        .stat-val { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; }
+
+        /* Turn indicator in right sidebar */
+        .turn-card {
+            background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2);
+            border-radius: 12px; padding: 14px 12px; text-align: center; margin-bottom: 12px;
+        }
+        .turn-card .turn-label { font-size: 0.72rem; color: #f97316; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .turn-card .turn-name { font-size: 0.95rem; font-weight: 700; color: #fff; }
+        .turn-card.my-turn { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); }
+        .turn-card.my-turn .turn-label { color: #22c55e; }
+        .turn-timer-bar { background: rgba(30,58,95,0.6); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 10px; }
+        .turn-timer-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 4px; transition: width 1s linear; }
+        .turn-timer-fill.low { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        /* Main Chat Area */
+        .chat-area { display: flex; flex-direction: column; overflow: hidden; }
+        .topic-strip {
+            padding: 12px 20px; background: rgba(249,115,22,0.05);
+            border-bottom: 1px solid rgba(249,115,22,0.1); flex-shrink: 0;
+        }
+        .topic-strip h3 { font-size: 0.88rem; font-weight: 600; color: #f97316; margin-bottom: 3px; }
+        .topic-strip p { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
+
+        .messages-scroll { flex: 1; overflow-y: auto; padding: 16px 18px; scroll-behavior: smooth; }
+        .messages-scroll::-webkit-scrollbar { width: 4px; }
+        .messages-scroll::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 2px; }
+
+        .msg { margin-bottom: 16px; display: flex; flex-direction: column; max-width: 85%; }
+        .msg.mine { align-self: flex-end; margin-left: auto; align-items: flex-end; }
+        .msg.ai { max-width: 100%; align-items: flex-start; }
+        .msg-bubble {
+            background: rgba(30,58,95,0.5); border-radius: 14px 14px 14px 4px;
+            padding: 12px 15px; border: 1px solid rgba(249,115,22,0.1); max-width: 100%;
+        }
+        .msg.mine .msg-bubble { background: rgba(249,115,22,0.12); border-color: rgba(249,115,22,0.25); border-radius: 14px 14px 4px 14px; }
+        .msg.ai .msg-bubble { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.25); border-radius: 14px; width: 100%; }
+        .msg-header { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .msg-author { font-size: 0.78rem; font-weight: 700; color: #94a3b8; }
+        .msg.mine .msg-author { color: #f97316; }
+        .msg.ai .msg-author { color: #818cf8; }
+        .msg-time { font-size: 0.68rem; color: #334155; }
+        .msg-content { font-size: 0.9rem; color: #e2e8f0; line-height: 1.6; word-break: break-word; }
+        .msg.ai .msg-content { color: #c7d2fe; }
+
+        .no-messages { text-align: center; padding: 50px 20px; color: #334155; }
+        .no-messages i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.3; }
+
+        /* Input area */
+        .input-zone { padding: 14px 18px; border-top: 1px solid rgba(249,115,22,0.12); flex-shrink: 0; }
+        .my-turn-banner {
+            background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25);
+            border-radius: 10px; padding: 8px 14px; margin-bottom: 10px;
+            font-size: 0.82rem; font-weight: 600; color: #22c55e;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .waiting-banner {
+            background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.15);
+            border-radius: 10px; padding: 8px 14px; margin-bottom: 10px;
+            font-size: 0.82rem; color: #94a3b8;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .input-row { display: flex; gap: 10px; }
+        .msg-input {
+            flex: 1; background: rgba(30,58,95,0.4); border: 1px solid rgba(249,115,22,0.18);
+            color: #e2e8f0; padding: 11px 16px; border-radius: 12px; font-size: 0.92rem;
+            font-family: 'Inter', sans-serif; resize: none; max-height: 100px; min-height: 44px;
+            transition: border-color 0.2s;
+        }
+        .msg-input:focus { outline: none; border-color: #f97316; }
+        .msg-input:disabled { opacity: 0.4; cursor: not-allowed; }
+        .msg-input::placeholder { color: #475569; }
+        .btn-send {
+            background: linear-gradient(135deg, #f97316, #ea580c); color: white; border: none;
+            padding: 11px 20px; border-radius: 12px; font-weight: 700; cursor: pointer;
+            transition: all 0.25s; flex-shrink: 0; font-size: 0.9rem;
+        }
+        .btn-send:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(249,115,22,0.35); }
+        .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .char-count { font-size: 0.72rem; color: #334155; text-align: right; margin-top: 4px; }
+
+        /* Notification */
+        .notif {
+            position: fixed; top: 72px; right: 16px;
+            background: rgba(15,23,42,0.97); border: 1px solid rgba(249,115,22,0.35);
+            color: #e2e8f0; padding: 11px 18px; border-radius: 10px; font-size: 0.85rem;
+            z-index: 500; transform: translateX(120%); transition: transform 0.35s; max-width: 280px;
+        }
+        .notif.show { transform: translateX(0); }
+        .notif.ok { border-color: rgba(34,197,94,0.4); }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 0 1fr 0; }
+            .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="room-title"><i class="fas fa-circle" style="color:#22c55e; font-size:0.55rem; vertical-align:middle;"></i> {{ room.room_name }}</div>
+            <div class="room-topic-badge">{{ topic.title }}</div>
+        </div>
+        <div class="topbar-center">
+            <div class="timer-box" id="mainTimerBox">
+                <div class="timer-val" id="mainTimer">--:--</div>
+                <div class="timer-lbl">Time Left</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            {% if participant.role == 'host' %}
+            <button class="btn-sm btn-end" onclick="endDiscussion()"><i class="fas fa-stop"></i> End Session</button>
+            {% endif %}
+            <button class="btn-sm btn-leave" onclick="leaveRoom()"><i class="fas fa-sign-out-alt"></i> Leave</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- Left Sidebar: Participants -->
+        <div class="sidebar">
+            <div class="sb-section">
+                <div class="sb-title">Participants ({{ participants|length }})</div>
+                {% for p in participants %}
+                <div class="p-item {% if room.current_speaker == p.user_id %}speaking{% endif %}" id="pi-{{ p.user_id }}">
+                    <div class="p-avatar {% if p.user_id == user.id %}me{% endif %}">
+                        {{ p.user.name[0].upper() }}
+                        {% if room.current_speaker == p.user_id %}
+                        <div class="speaking-dot"></div>
+                        {% endif %}
+                    </div>
+                    <div class="p-info">
+                        <div class="p-name">{{ p.user.name }}{% if p.role == 'host' %} <span style="font-size:0.6rem;color:#fbbf24;">HOST</span>{% endif %}</div>
+                        <div class="p-stat">{{ p.message_count }} msg{% if p.role != 'host' %} · {{ p.turn_count }} turns{% endif %}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Chat -->
+        <div class="chat-area">
+            <!-- Topic Strip -->
+            <div class="topic-strip">
+                <h3><i class="fas fa-lightbulb"></i> {{ topic.title }}</h3>
+                <p>{{ topic.description }}</p>
+            </div>
+
+            <!-- Messages -->
+            <div class="messages-scroll" id="messagesScroll">
+                {% if messages %}
+                    {% for msg in messages %}
+                    <div class="msg {% if msg.user_id == user.id %}mine{% endif %} {% if msg.message_type == 'ai_feedback' %}ai{% endif %}" data-msg-id="{{ msg.id }}">
+                        <div class="msg-header">
+                            <span class="msg-author">
+                                {% if msg.message_type == 'ai_feedback' %}
+                                    <i class="fas fa-robot"></i> AI Coach
+                                {% else %}
+                                    {{ msg.user.name }}{% if msg.user_id == user.id %} (you){% endif %}
+                                {% endif %}
+                            </span>
+                            <span class="msg-time">{{ msg.formatted_time() }}</span>
+                        </div>
+                        <div class="msg-bubble">
+                            <div class="msg-content">{{ msg.content }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="no-messages">
+                    <i class="fas fa-comments"></i>
+                    <p>No messages yet. Start the discussion!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Input Zone -->
+            <div class="input-zone">
+                {% if room.discussion_mode == 'turn_based' %}
+                    {% if room.current_speaker == user.id %}
+                    <div class="my-turn-banner"><i class="fas fa-microphone"></i> It's your turn — share your thoughts!</div>
+                    {% else %}
+                    <div class="waiting-banner" id="waitBanner">
+                        <i class="fas fa-clock"></i>
+                        <span id="speakerNameDisplay">
+                        {% for p in participants %}{% if p.user_id == room.current_speaker %}{{ p.user.name }} is speaking...{% endif %}{% endfor %}
+                        </span>
+                    </div>
+                    {% endif %}
+                {% endif %}
+                <div class="input-row">
+                    <textarea class="msg-input" id="msgInput"
+                        placeholder="{% if room.discussion_mode == 'turn_based' and room.current_speaker != user.id %}Wait for your turn...{% else %}Type your message (Shift+Enter for new line, Enter to send){% endif %}"
+                        {% if room.discussion_mode == 'turn_based' and room.current_speaker != user.id %}disabled{% endif %}
+                        rows="1"
+                        oninput="updateCharCount(this)"></textarea>
+                    <button class="btn-send" id="sendBtn"
+                        {% if room.discussion_mode == 'turn_based' and room.current_speaker != user.id %}disabled{% endif %}
+                        onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="char-count" id="charCount">0 / 1000</div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Info & Turn -->
+        <div class="sidebar sidebar-right">
+            {% if room.discussion_mode == 'turn_based' %}
+            <div class="sb-section">
+                <div class="sb-title">Current Turn</div>
+                {% if room.current_speaker == user.id %}
+                <div class="turn-card my-turn">
+                    <div class="turn-label"><i class="fas fa-microphone"></i> Your Turn!</div>
+                    <div class="turn-name">{{ user.name }}</div>
+                    <div class="turn-timer-bar"><div class="turn-timer-fill" id="turnFill" style="width:100%"></div></div>
+                </div>
+                {% else %}
+                <div class="turn-card" id="currentTurnCard">
+                    <div class="turn-label">Speaking Now</div>
+                    <div class="turn-name" id="currentSpeakerName">
+                        {% for p in participants %}{% if p.user_id == room.current_speaker %}{{ p.user.name }}{% endif %}{% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div style="font-size:0.74rem; color:#475569;">Turn #{{ room.current_turn }}</div>
+            </div>
+            {% endif %}
+            <div class="sb-section" style="flex:1; overflow-y:auto;">
+                <div class="sb-title">Session Info</div>
+                <div class="stat-row"><span class="stat-key">Mode</span><span class="stat-val">{{ room.discussion_mode.replace('_',' ').title() }}</span></div>
+                <div class="stat-row"><span class="stat-key">Topic</span><span class="stat-val">{{ topic.topic_type.replace('_',' ').title() }}</span></div>
+                <div class="stat-row"><span class="stat-key">Difficulty</span><span class="stat-val">{{ topic.difficulty_level.title() }}</span></div>
+                <div class="stat-row"><span class="stat-key">Your Messages</span><span class="stat-val" id="myMsgCount">{{ participant.message_count }}</span></div>
+                {% if room.discussion_mode == 'turn_based' %}
+                <div class="stat-row"><span class="stat-key">Your Turns</span><span class="stat-val" id="myTurnCount">{{ participant.turn_count }}</span></div>
+                {% endif %}
+                <div class="stat-row"><span class="stat-key">Room ID</span><span class="stat-val" style="color:#f97316; font-family:monospace;">{{ room.room_id }}</span></div>
+            </div>
+            <div class="sb-section">
+                <div style="font-size:0.74rem; color:#334155; text-align:center;">
+                    <span style="display:inline-block; width:7px; height:7px; background:#22c55e; border-radius:50%; margin-right:4px; animation:pulse 1.5s infinite;"></span>
+                    Live · polling every 4s
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notif" id="notif"></div>
+
+    <script>
+        const ROOM_ID = '{{ room.room_id }}';
+        const MY_ID = {{ user.id }};
+        const DISCUSSION_MODE = '{{ room.discussion_mode }}';
+        const TURN_DURATION = {{ room.turn_duration }};
+        const TOTAL_DURATION = {{ room.total_duration }};
+        const STARTED_AT = {% if room.started_at %}new Date('{{ room.started_at.isoformat() }}Z').getTime(){% else %}Date.now(){% endif %};
+
+        let lastMsgId = {% if messages %}{{ messages[-1].id if messages else 0 }}{% else %}0{% endif %};
+        let turnStartTime = {% if room.turn_start_time %}new Date('{{ room.turn_start_time.isoformat() }}Z').getTime(){% else %}null{% endif %};
+        let currentSpeaker = {{ room.current_speaker if room.current_speaker else 'null' }};
+        let polling = false;
+
+        // ---- Timers ----
+        function updateMainTimer() {
+            const elapsed = (Date.now() - STARTED_AT) / 1000;
+            const remaining = Math.max(0, TOTAL_DURATION - elapsed);
+            const m = Math.floor(remaining / 60);
+            const s = Math.floor(remaining % 60);
+            const el = document.getElementById('mainTimer');
+            el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+            if (remaining <= 120) document.getElementById('mainTimerBox').classList.add('warning');
+            if (remaining <= 0) window.location.href = `/gd-room-results/${ROOM_ID}`;
+        }
+
+        function updateTurnTimer() {
+            if (!turnStartTime || DISCUSSION_MODE !== 'turn_based') return;
+            const elapsed = (Date.now() - turnStartTime) / 1000;
+            const remaining = Math.max(0, TURN_DURATION - elapsed);
+            const pct = (remaining / TURN_DURATION) * 100;
+            const fill = document.getElementById('turnFill');
+            if (fill) {
+                fill.style.width = pct + '%';
+                fill.className = 'turn-timer-fill' + (pct < 25 ? ' low' : '');
+            }
+        }
+
+        setInterval(() => { updateMainTimer(); updateTurnTimer(); }, 1000);
+        updateMainTimer();
+
+        // ---- Polling ----
+        function poll() {
+            if (polling) return;
+            polling = true;
+            fetch(`/api/gd-room-poll/${ROOM_ID}?last_msg_id=${lastMsgId}`)
+            .then(r => r.json())
+            .then(data => {
+                polling = false;
+                if (!data.success) return;
+
+                if (data.redirect_url) { window.location.href = data.redirect_url; return; }
+                if (data.room_status === 'completed') { window.location.href = `/gd-room-results/${ROOM_ID}`; return; }
+
+                // Append new messages
+                if (data.new_messages && data.new_messages.length > 0) {
+                    const container = document.getElementById('messagesScroll');
+                    const noMsg = container.querySelector('.no-messages');
+                    if (noMsg) noMsg.remove();
+
+                    data.new_messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `msg${msg.is_current_user ? ' mine' : ''}${msg.message_type === 'ai_feedback' ? ' ai' : ''}`;
+                        div.dataset.msgId = msg.id;
+                        div.innerHTML = `
+                            <div class="msg-header">
+                                <span class="msg-author">${msg.message_type === 'ai_feedback' ? '<i class="fas fa-robot"></i> AI Coach' : msg.author + (msg.is_current_user ? ' (you)' : '')}</span>
+                                <span class="msg-time">${msg.time}</span>
+                            </div>
+                            <div class="msg-bubble"><div class="msg-content">${escHtml(msg.content)}</div></div>
+                        `;
+                        container.appendChild(div);
+                        lastMsgId = Math.max(lastMsgId, msg.id);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                }
+
+                // Update current speaker
+                if (data.current_speaker !== currentSpeaker) {
+                    currentSpeaker = data.current_speaker;
+                    turnStartTime = data.turn_start_time ? new Date(data.turn_start_time).getTime() : null;
+                    updateSpeakerUI(data);
+                }
+
+                // Update participant stats
+                if (data.participants) updateParticipantStats(data.participants);
+                document.getElementById('myMsgCount').textContent = data.my_message_count || 0;
+                const mtc = document.getElementById('myTurnCount');
+                if (mtc) mtc.textContent = data.my_turn_count || 0;
+            })
+            .catch(() => { polling = false; });
+        }
+
+        function updateSpeakerUI(data) {
+            const isMeTurn = data.current_speaker === MY_ID;
+            const inputEl = document.getElementById('msgInput');
+            const sendEl = document.getElementById('sendBtn');
+
+            if (DISCUSSION_MODE === 'turn_based') {
+                inputEl.disabled = !isMeTurn;
+                sendEl.disabled = !isMeTurn;
+                inputEl.placeholder = isMeTurn ? 'Type your message (Enter to send)' : 'Wait for your turn...';
+
+                const speakerName = data.participants.find(p => p.user_id === data.current_speaker);
+                const nameStr = speakerName ? speakerName.name : 'Next speaker';
+
+                // Update banners
+                const waitBanner = document.getElementById('waitBanner');
+                const inputZone = document.querySelector('.input-zone');
+
+                if (isMeTurn) {
+                    if (waitBanner) waitBanner.remove();
+                    if (!inputZone.querySelector('.my-turn-banner')) {
+                        const banner = document.createElement('div');
+                        banner.className = 'my-turn-banner';
+                        banner.innerHTML = '<i class="fas fa-microphone"></i> It\'s your turn — share your thoughts!';
+                        inputZone.prepend(banner);
+                    }
+                } else {
+                    const myBanner = inputZone.querySelector('.my-turn-banner');
+                    if (myBanner) myBanner.remove();
+                    const wb = document.getElementById('waitBanner');
+                    if (wb) { wb.querySelector('#speakerNameDisplay').textContent = nameStr + ' is speaking...'; }
+                }
+
+                // Update right sidebar
+                const spNameEl = document.getElementById('currentSpeakerName');
+                if (spNameEl) spNameEl.textContent = nameStr;
+            }
+
+            // Highlight speaking participant
+            document.querySelectorAll('.p-item').forEach(el => el.classList.remove('speaking'));
+            if (data.current_speaker) {
+                const pi = document.getElementById(`pi-${data.current_speaker}`);
+                if (pi) pi.classList.add('speaking');
+            }
+        }
+
+        function updateParticipantStats(participants) {
+            participants.forEach(p => {
+                const el = document.getElementById(`pi-${p.user_id}`);
+                if (el) {
+                    const stat = el.querySelector('.p-stat');
+                    if (stat) stat.textContent = `${p.message_count} msg · ${p.turn_count} turns`;
+                }
+            });
+        }
+
+        // Poll every 4 seconds
+        setInterval(poll, 4000);
+
+        // ---- Send Message ----
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const content = input.value.trim();
+            if (!content) return;
+            if (content.length > 1000) { showNotif('Message too long (max 1000 chars).', ''); return; }
+
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            input.disabled = true;
+
+            fetch('/send-gd-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: ROOM_ID, content })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    document.getElementById('charCount').textContent = '0 / 1000';
+                    if (DISCUSSION_MODE === 'open') {
+                        input.disabled = false;
+                        btn.disabled = false;
+                    }
+                    // Immediately poll for updates
+                    setTimeout(poll, 300);
+                } else {
+                    showNotif(data.error || 'Could not send message.', '');
+                    input.disabled = false;
+                    btn.disabled = false;
+                }
+            })
+            .catch(() => {
+                showNotif('Network error. Please try again.', '');
+                input.disabled = false;
+                btn.disabled = false;
+            });
+        }
+
+        // ---- End / Leave ----
+        function endDiscussion() {
+            if (!confirm('End the discussion for all participants? This will generate evaluations.')) return;
+            fetch('/end-gd-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: ROOM_ID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) window.location.href = `/gd-room-results/${ROOM_ID}`;
+                else showNotif(data.error || 'Error ending session.', '');
+            });
+        }
+
+        function leaveRoom() {
+            if (!confirm('Leave this discussion? You will not be able to rejoin.')) return;
+            fetch('/leave-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: ROOM_ID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                window.location.href = '/group-discussion';
+            })
+            .catch(() => window.location.href = '/group-discussion');
+        }
+
+        // ---- Helpers ----
+        function escHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function updateCharCount(el) {
+            document.getElementById('charCount').textContent = `${el.value.length} / 1000`;
+            // Auto-grow
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+        }
+
+        function showNotif(msg, type) {
+            const n = document.getElementById('notif');
+            n.textContent = msg;
+            n.className = `notif show ${type}`;
+            setTimeout(() => n.className = 'notif', 3000);
+        }
+
+        // Enter to send
+        document.getElementById('msgInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Initial scroll to bottom
+        window.addEventListener('load', () => {
+            const sc = document.getElementById('messagesScroll');
+            sc.scrollTop = sc.scrollHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Review - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .bg-animation span {
+            position: absolute; width: 20px; height: 20px;
+            background: rgba(59, 130, 246, 0.1); border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 30%; animation-delay: 3s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 60%; animation-delay: 6s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .navbar {
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px);
+            padding: 1rem 2rem; position: fixed; width: 100%; top: 0;
+            z-index: 1000; border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .nav-content {
+            max-width: 1400px; margin: 0 auto; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        .logo-text {
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-links { display: flex; gap: 1rem; align-items: center; }
+        .nav-link {
+            color: #94a3b8; text-decoration: none; padding: 0.6rem 1.2rem;
+            border-radius: 10px; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px; font-weight: 500;
+        }
+        .nav-link:hover { color: #ffffff; background: rgba(59, 130, 246, 0.2); }
+
+        .main-content { padding-top: 100px; min-height: 100vh; position: relative; z-index: 1; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+        .page-header { text-align: center; margin-bottom: 2rem; }
+        .page-title {
+            font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .page-subtitle { color: #94a3b8; font-size: 1.1rem; }
+
+        .score-summary {
+            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem; margin-bottom: 2rem; display: flex;
+            justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+        }
+        .summary-item { text-align: center; }
+        .summary-value { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+        .summary-label { color: #94a3b8; font-size: 0.85rem; margin-top: 0.25rem; }
+
+        .review-card {
+            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem; margin-bottom: 1.5rem;
+        }
+        .review-card.correct { border-left: 4px solid #10b981; }
+        .review-card.incorrect { border-left: 4px solid #ef4444; }
+
+        .review-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem;
+        }
+        .q-num { font-weight: 600; color: #94a3b8; font-size: 0.9rem; }
+        .status-badge {
+            padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        }
+        .status-badge.correct { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-badge.incorrect { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .review-question { color: #ffffff; font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
+        .options-list { list-style: none; margin-bottom: 1.5rem; }
+        .options-list li {
+            padding: 0.8rem 1.2rem; border-radius: 10px; margin-bottom: 0.5rem;
+            background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(100, 116, 139, 0.2);
+            display: flex; align-items: center; gap: 10px; font-size: 0.95rem;
+        }
+        .options-list li.user-selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .options-list li.correct-option { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .options-list li.user-wrong { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .opt-letter { font-weight: 700; color: #3b82f6; width: 25px; }
+        .opt-text { color: #e2e8f0; flex: 1; }
+        .opt-icon { font-size: 0.9rem; }
+
+        .answer-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .answer-box {
+            flex: 1; min-width: 200px; padding: 0.8rem 1rem;
+            border-radius: 10px; background: rgba(100, 116, 139, 0.1);
+        }
+        .answer-box .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
+        .answer-box .value { font-weight: 600; }
+        .answer-box .value.correct { color: #10b981; }
+        .answer-box .value.wrong { color: #ef4444; }
+
+        .action-buttons {
+            display: flex; gap: 1rem; justify-content: center;
+            margin-top: 2rem; flex-wrap: wrap;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white; border: none; padding: 1rem 2rem;
+            border-radius: 15px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); }
+        .action-btn.secondary {
+            background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .action-btn.secondary:hover { background: rgba(59, 130, 246, 0.3); }
+
+        @media (max-width: 768px) {
+            .score-summary { flex-direction: column; }
+            .action-buttons { flex-direction: column; }
+            .answer-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"><span></span><span></span><span></span></div>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon"><i class="fas fa-route"></i></div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/mock-test" class="nav-link"><i class="fas fa-brain"></i> Mock Tests</a>
+                <a href="/test-history" class="nav-link"><i class="fas fa-history"></i> Test History</a>
+                <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Test Review</h1>
+                <p class="page-subtitle">{{ test_result.category.title() }} Test &mdash; {{ test_result.formatted_date() }}</p>
+            </div>
+
+            <div class="score-summary">
+                <div class="summary-item">
+                    <div class="summary-value">{{ test_result.percentage_score() }}%</div>
+                    <div class="summary-label">Score</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ test_result.score }}/{{ test_result.total_questions }}</div>
+                    <div class="summary-label">Correct</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ '%d:%02d' % (test_result.time_taken // 60, test_result.time_taken % 60) }}</div>
+                    <div class="summary-label">Time Taken</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: {{ '#10b981' if test_result.percentage_score() >= 60 else '#ef4444' }}">
+                        {{ 'Pass' if test_result.percentage_score() >= 60 else 'Fail' }}
+                    </div>
+                    <div class="summary-label">Status</div>
+                </div>
+            </div>
+
+            {% for item in review_data %}
+            <div class="review-card {{ 'correct' if item.is_correct else 'incorrect' }}">
+                <div class="review-header">
+                    <span class="q-num">Question {{ loop.index }}</span>
+                    <span class="status-badge {{ 'correct' if item.is_correct else 'incorrect' }}">
+                        <i class="fas {{ 'fa-check' if item.is_correct else 'fa-times' }}"></i>
+                        {{ 'Correct' if item.is_correct else 'Incorrect' }}
+                    </span>
+                </div>
+                <div class="review-question">{{ item.question.question }}</div>
+
+                <ul class="options-list">
+                    {% for letter, text in item.question.options.items() %}
+                    <li class="{% if letter == item.correct_answer and letter == item.user_answer %}correct-option user-selected{% elif letter == item.correct_answer %}correct-option{% elif letter == item.user_answer and not item.is_correct %}user-wrong{% endif %}">
+                        <span class="opt-letter">{{ letter }})</span>
+                        <span class="opt-text">{{ text }}</span>
+                        {% if letter == item.correct_answer %}
+                        <span class="opt-icon" style="color: #10b981;"><i class="fas fa-check-circle"></i></span>
+                        {% elif letter == item.user_answer and not item.is_correct %}
+                        <span class="opt-icon" style="color: #ef4444;"><i class="fas fa-times-circle"></i></span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="answer-row">
+                    <div class="answer-box">
+                        <div class="label">Your Answer</div>
+                        <div class="value {{ 'correct' if item.is_correct else 'wrong' }}">
+                            {{ item.user_answer if item.user_answer else 'Not answered' }}{% if item.user_answer and item.user_answer in item.question.options %}) {{ item.question.options[item.user_answer] }}{% endif %}
+                        </div>
+                    </div>
+                    <div class="answer-box">
+                        <div class="label">Correct Answer</div>
+                        <div class="value correct">
+                            {{ item.correct_answer }}) {{ item.question.options[item.correct_answer] if item.correct_answer in item.question.options else '' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="action-buttons">
+                <a href="/start-test/{{ test_result.category }}" class="action-btn">
+                    <i class="fas fa-redo"></i> Retake Test
+                </a>
+                <a href="/test-history" class="action-btn secondary">
+                    <i class="fas fa-history"></i> Test History
+                </a>
+                <a href="/dashboard" class="action-btn secondary">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

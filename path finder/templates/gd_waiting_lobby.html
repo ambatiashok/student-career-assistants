@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting Room — {{ room.room_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh; color: #e2e8f0;
+        }
+        .top-nav {
+            background: rgba(15,23,42,0.95); border-bottom: 1px solid rgba(249,115,22,0.2);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .nav-brand { font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #f97316, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-right { display: flex; gap: 15px; align-items: center; }
+        .nav-link { color: #94a3b8; text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
+        .nav-link:hover { color: #f97316; }
+        .room-badge {
+            background: rgba(249,115,22,0.15); color: #f97316;
+            border: 1px solid rgba(249,115,22,0.3); padding: 5px 14px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 600;
+        }
+
+        .container { max-width: 1150px; margin: 0 auto; padding: 28px 20px; }
+
+        /* Header Card */
+        .room-header {
+            background: rgba(15,23,42,0.9); border-radius: 22px;
+            border: 1px solid rgba(249,115,22,0.2); padding: 30px 36px;
+            margin-bottom: 26px; text-align: center;
+        }
+        .room-header h1 {
+            font-size: 2.1rem; font-weight: 800;
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px;
+        }
+        .room-header .subtitle { color: #94a3b8; font-size: 0.95rem; margin-bottom: 16px; }
+        .room-id-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.3);
+            padding: 8px 20px; border-radius: 25px; font-size: 1.1rem; font-weight: 700; color: #f97316;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .room-id-chip:hover { background: rgba(249,115,22,0.22); }
+        .room-id-chip i { font-size: 0.9rem; }
+
+        /* Ready Banner */
+        .ready-banner {
+            background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 14px; padding: 14px 22px; margin-bottom: 22px;
+            display: flex; align-items: center; gap: 12px; color: #bbf7d0;
+        }
+        .ready-banner i { font-size: 1.3rem; color: #22c55e; }
+
+        /* Grid */
+        .grid-3 { display: grid; grid-template-columns: 280px 1fr 260px; gap: 22px; }
+
+        .panel {
+            background: rgba(15,23,42,0.9); border-radius: 20px;
+            border: 1px solid rgba(249,115,22,0.12); overflow: hidden;
+        }
+        .panel-head {
+            padding: 18px 22px; border-bottom: 1px solid rgba(249,115,22,0.1);
+            background: rgba(249,115,22,0.04);
+        }
+        .panel-head h3 { font-size: 1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .panel-head h3 i { color: #f97316; }
+        .panel-sub { color: #64748b; font-size: 0.8rem; margin-top: 3px; }
+        .panel-body { padding: 18px 20px; }
+
+        /* Participants */
+        .participant-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(30,58,95,0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+            border: 1px solid rgba(249,115,22,0.06); transition: border-color 0.2s;
+        }
+        .participant-item:last-child { margin-bottom: 0; }
+        .participant-item:hover { border-color: rgba(249,115,22,0.2); }
+        .pi-left { display: flex; align-items: center; gap: 12px; }
+        .pi-avatar {
+            width: 42px; height: 42px; background: linear-gradient(135deg, #f97316, #ea580c);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700; color: white; flex-shrink: 0;
+        }
+        .pi-avatar.me { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .pi-name { font-weight: 600; color: #e2e8f0; font-size: 0.92rem; margin-bottom: 2px; }
+        .pi-role { font-size: 0.75rem; color: #64748b; }
+        .host-tag {
+            background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25);
+            padding: 3px 9px; border-radius: 10px; font-size: 0.72rem; font-weight: 700;
+        }
+        .you-tag {
+            background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.2);
+            padding: 3px 9px; border-radius: 10px; font-size: 0.72rem; font-weight: 600;
+        }
+        .empty-slots {
+            text-align: center; padding: 12px; color: #475569;
+            border: 1px dashed rgba(249,115,22,0.15); border-radius: 10px;
+            font-size: 0.82rem; margin-top: 8px;
+        }
+
+        /* Topic */
+        .topic-type-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; color: #f97316;
+            margin-bottom: 14px;
+        }
+        .topic-title { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.4; }
+        .topic-desc { color: #94a3b8; font-size: 0.88rem; line-height: 1.65; margin-bottom: 18px; }
+        .topic-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+        .topic-meta-item {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(30,58,95,0.4); padding: 7px 13px; border-radius: 10px;
+            font-size: 0.82rem; color: #94a3b8;
+        }
+        .topic-meta-item i { color: #f97316; }
+
+        /* Status Controls */
+        .status-block { text-align: center; padding: 10px 0 20px; }
+        .status-animation {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: rgba(249,115,22,0.1); border: 2px solid rgba(249,115,22,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 14px; animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(249,115,22,0); }
+        }
+        .status-title { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 5px; }
+        .status-desc { font-size: 0.82rem; color: #64748b; margin-bottom: 20px; }
+        .participant-counter { font-size: 2.6rem; font-weight: 800; color: #f97316; margin-bottom: 4px; }
+        .counter-label { font-size: 0.8rem; color: #64748b; margin-bottom: 22px; }
+        .min-bar {
+            background: rgba(30,58,95,0.5); border-radius: 30px; height: 8px; overflow: hidden; margin-bottom: 6px;
+        }
+        .min-bar-fill { height: 100%; background: linear-gradient(90deg, #f97316, #fbbf24); border-radius: 30px; transition: width 0.5s; }
+        .min-bar-label { font-size: 0.76rem; color: #475569; margin-bottom: 20px; }
+
+        .btn-start {
+            width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: white;
+            border: none; padding: 14px; border-radius: 12px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-bottom: 10px;
+        }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(34,197,94,0.35); }
+        .btn-start:disabled { background: rgba(34,197,94,0.3); cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-cancel-room {
+            width: 100%; background: rgba(239,68,68,0.1); color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.25); padding: 11px; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;
+        }
+        .btn-cancel-room:hover { background: rgba(239,68,68,0.2); }
+        .btn-leave {
+            width: 100%; background: transparent; color: #64748b;
+            border: 1px solid rgba(249,115,22,0.12); padding: 11px; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+        }
+        .btn-leave:hover { color: #94a3b8; border-color: rgba(249,115,22,0.25); }
+
+        .tip-box {
+            background: rgba(30,58,95,0.3); border-radius: 12px; padding: 14px 16px; margin-top: 14px;
+        }
+        .tip-box h4 { font-size: 0.82rem; font-weight: 600; color: #f97316; margin-bottom: 8px; }
+        .tip-box ul { list-style: none; padding: 0; }
+        .tip-box ul li { font-size: 0.8rem; color: #94a3b8; padding: 4px 0; display: flex; gap: 7px; align-items: flex-start; }
+        .tip-box ul li::before { content: "•"; color: #f97316; flex-shrink: 0; margin-top: 1px; }
+
+        /* Polling indicator */
+        .polling-dot {
+            display: inline-block; width: 8px; height: 8px; background: #22c55e;
+            border-radius: 50%; margin-right: 5px; animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .polling-status { font-size: 0.76rem; color: #475569; text-align: center; margin-top: 10px; }
+
+        @media (max-width: 1000px) {
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+            .grid-3 > div:last-child { grid-column: 1 / -1; }
+        }
+        @media (max-width: 640px) { .grid-3 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/dashboard" class="nav-brand"><i class="fas fa-route"></i> Student Career Assistant</a>
+        <div class="nav-right">
+            <span class="room-badge"><i class="fas fa-clock"></i> Waiting</span>
+            <a href="/group-discussion" class="nav-link"><i class="fas fa-times"></i> Exit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="room-header">
+            <h1><i class="fas fa-hourglass-half" style="-webkit-text-fill-color:#f97316;font-size:1.8rem;margin-right:8px;"></i>{{ room.room_name }}</h1>
+            <p class="subtitle">Waiting for participants to join before the discussion starts</p>
+            <div class="room-id-chip" onclick="copyRoomId()">
+                <i class="fas fa-hashtag"></i> Room ID: {{ room.room_id }}
+                <i class="fas fa-copy" style="font-size:0.8rem; opacity:0.7;"></i>
+            </div>
+        </div>
+
+        {% if room.is_ready_to_start() and participant.role == 'host' %}
+        <div class="ready-banner">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Ready to start!</strong> You have {{ participants|length }} participants — enough to begin.
+                Participants are waiting for you to launch the session.
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid-3">
+            <!-- Participants -->
+            <div class="panel">
+                <div class="panel-head">
+                    <h3><i class="fas fa-users"></i> Participants</h3>
+                    <div class="panel-sub">{{ participants|length }}/{{ room.max_participants }} joined</div>
+                </div>
+                <div class="panel-body">
+                    {% for p in participants %}
+                    <div class="participant-item">
+                        <div class="pi-left">
+                            <div class="pi-avatar {% if p.user_id == user.id %}me{% endif %}">
+                                {{ p.user.name[0].upper() }}
+                            </div>
+                            <div>
+                                <div class="pi-name">{{ p.user.name }}</div>
+                                <div class="pi-role">Joined {{ p.formatted_join_time() }}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            {% if p.role == 'host' %}<span class="host-tag">HOST</span>{% endif %}
+                            {% if p.user_id == user.id %}<span class="you-tag">YOU</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if participants|length < room.max_participants %}
+                    <div class="empty-slots">
+                        <i class="fas fa-user-plus"></i>
+                        {{ room.max_participants - participants|length }} slot{{ 's' if (room.max_participants - participants|length) != 1 else '' }} remaining — share the Room ID!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Topic -->
+            <div class="panel">
+                <div class="panel-head">
+                    <h3><i class="fas fa-lightbulb"></i> Discussion Topic</h3>
+                    <div class="panel-sub">Study this before you begin</div>
+                </div>
+                <div class="panel-body">
+                    <span class="topic-type-badge">
+                        <i class="fas fa-tag"></i>
+                        {{ topic.topic_type.replace('_', ' ').title() }}
+                    </span>
+                    <div class="topic-title">{{ topic.title }}</div>
+                    <div class="topic-desc">{{ topic.description }}</div>
+                    <div class="topic-meta">
+                        <div class="topic-meta-item"><i class="fas fa-star"></i> {{ topic.difficulty_level.title() }}</div>
+                        <div class="topic-meta-item"><i class="fas fa-clock"></i> {{ room.total_duration // 60 }} min session</div>
+                        <div class="topic-meta-item"><i class="fas fa-exchange-alt"></i> {{ room.discussion_mode.replace('_', ' ').title() }}</div>
+                        {% if room.discussion_mode == 'turn_based' %}
+                        <div class="topic-meta-item"><i class="fas fa-stopwatch"></i> {{ room.turn_duration }}s per turn</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="panel">
+                <div class="panel-head">
+                    <h3><i class="fas fa-play-circle"></i> Room Controls</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="status-block">
+                        <div class="status-animation"><i class="fas fa-users"></i></div>
+                        <div class="status-title">Waiting for Participants</div>
+                        <div class="status-desc">Need {{ room.min_participants }} minimum to start</div>
+                        <div class="participant-counter">{{ participants|length }}</div>
+                        <div class="counter-label">of {{ room.max_participants }} max joined</div>
+                        <div class="min-bar">
+                            <div class="min-bar-fill" style="width: {{ [[participants|length / room.min_participants * 100, 100]|min, 0]|max }}%"></div>
+                        </div>
+                        <div class="min-bar-label">{{ participants|length }}/{{ room.min_participants }} minimum required</div>
+                    </div>
+
+                    {% if participant.role == 'host' %}
+                    <button class="btn-start" onclick="startRoom()" id="startBtn" {% if not room.is_ready_to_start() %}disabled{% endif %}>
+                        <i class="fas fa-play"></i> Start Discussion
+                    </button>
+                    <button class="btn-cancel-room" onclick="cancelRoom()">
+                        <i class="fas fa-times"></i> Cancel Room
+                    </button>
+                    {% else %}
+                    <a href="/group-discussion" class="btn-leave" onclick="return leaveRoom(event)">
+                        <i class="fas fa-sign-out-alt"></i> Leave Room
+                    </a>
+                    {% endif %}
+
+                    <div class="polling-status"><span class="polling-dot"></span>Auto-refreshing every 5 seconds</div>
+
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Before you start</h4>
+                        <ul>
+                            <li>Read the topic carefully above</li>
+                            <li>Note 2–3 key points to raise</li>
+                            <li>Think about both sides of the argument</li>
+                            <li>Be ready to listen and respond</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ROOM_ID = '{{ room.room_id }}';
+        const IS_HOST = {{ 'true' if participant.role == 'host' else 'false' }};
+
+        function copyRoomId() {
+            navigator.clipboard.writeText(ROOM_ID).then(() => {
+                const chip = document.querySelector('.room-id-chip');
+                chip.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                chip.style.background = 'rgba(34,197,94,0.2)';
+                chip.style.borderColor = 'rgba(34,197,94,0.3)';
+                chip.style.color = '#22c55e';
+                setTimeout(() => {
+                    chip.innerHTML = `<i class="fas fa-hashtag"></i> Room ID: ${ROOM_ID} <i class="fas fa-copy" style="font-size:0.8rem;opacity:0.7;"></i>`;
+                    chip.style.background = 'rgba(249,115,22,0.12)';
+                    chip.style.borderColor = 'rgba(249,115,22,0.3)';
+                    chip.style.color = '#f97316';
+                }, 2000);
+            }).catch(() => alert('Room ID: ' + ROOM_ID));
+        }
+
+        function startRoom() {
+            if (!confirm('Start the discussion now? No new participants can join once started.')) return;
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+            fetch('/start-gd-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: ROOM_ID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/gd-room/${ROOM_ID}`;
+                } else {
+                    alert('Error: ' + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Start Discussion';
+                }
+            })
+            .catch(() => {
+                alert('Network error. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Discussion';
+            });
+        }
+
+        function cancelRoom() {
+            if (!confirm('Cancel this room? All participants will be removed. This cannot be undone.')) return;
+            fetch('/cancel-gd-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room_id: ROOM_ID })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) window.location.href = '/group-discussion';
+                else alert('Error: ' + data.error);
+            });
+        }
+
+        function leaveRoom(e) {
+            if (!confirm('Leave this room?')) { e.preventDefault(); return false; }
+            return true;
+        }
+
+        // Poll for room status changes every 5 seconds
+        function pollRoomStatus() {
+            fetch(`/api/gd-room-poll/${ROOM_ID}?last_msg_id=0`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.room_status === 'active') {
+                        window.location.href = `/gd-room/${ROOM_ID}`;
+                    } else if (data.room_status === 'cancelled') {
+                        alert('The host has cancelled this room.');
+                        window.location.href = '/group-discussion';
+                    } else {
+                        // Update participant count if changed
+                        const count = data.participants.length;
+                        const counter = document.querySelector('.participant-counter');
+                        if (counter && parseInt(counter.textContent) !== count) {
+                            location.reload();  // Reload to refresh participant list
+                        }
+                    }
+                }
+            })
+            .catch(() => {}); // Silently ignore
+        }
+
+        setInterval(pollRoomStatus, 5000);
+    </script>
+</body>
+</html>

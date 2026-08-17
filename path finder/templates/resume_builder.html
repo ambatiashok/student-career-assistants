@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Builder - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; animation-delay: 6s; width: 25px; height: 25px; }
+        .bg-animation span:nth-child(5) { left: 70%; animation-delay: 8s; }
+        .bg-animation span:nth-child(6) { left: 85%; animation-delay: 10s; width: 35px; height: 35px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #10b981;
+            margin-top: 1rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .icon-green { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .icon-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .action-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .action-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .action-desc {
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
+            color: white;
+        }
+
+        .btn-history {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .btn-templates {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .btn-templates:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+            color: white;
+        }
+
+        /* Recent Resumes */
+        .recent-section {
+            margin-top: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resume-table {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1.5fr;
+            gap: 1rem;
+            font-weight: 600;
+            color: #10b981;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1.5fr;
+            gap: 1rem;
+            align-items: center;
+            border-top: 1px solid rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .resume-date {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .resume-validation {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .score-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .score-excellent {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .score-good {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .score-low {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .score-pending {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-view {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-view:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .btn-analyze {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-analyze:hover {
+            background: rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            color: #10b981;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-desc {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .alert-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .table-header, .table-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="/resume-builder" class="nav-link active">
+                    <i class="fas fa-file-alt"></i>
+                    Resume Builder
+                </a>
+                <a href="/mock-test" class="nav-link">
+                    <i class="fas fa-brain"></i>
+                    Mock Tests
+                </a>
+                <a href="/group-discussion" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    Group Discussion
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }}"></i>
+                            {{ message }}
+                            <button class="alert-close" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">AI Resume Builder</h1>
+                <p class="page-subtitle">Create professional, ATS-optimized resumes with AI-powered validation</p>
+                <div class="ai-badge">
+                    <i class="fas fa-robot"></i>
+                    <span>Powered by Advanced AI</span>
+                </div>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-green">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3 class="feature-title">AI Resume Generator</h3>
+                    <p class="feature-desc">Create professional resumes with AI-powered content optimization</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-blue">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Resume Scoring</h3>
+                    <p class="feature-desc">Get detailed scores for content, structure & ATS compatibility</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-purple">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="feature-title">Recruiter Simulation</h3>
+                    <p class="feature-desc">AI simulates recruiter review with hiring probability</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-orange">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Suggestions</h3>
+                    <p class="feature-desc">Get actionable improvement recommendations</p>
+                </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="action-cards">
+                <div class="action-card">
+                    <div class="action-icon icon-green">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h2 class="action-title">Create New Resume</h2>
+                    <p class="action-desc">Build a professional resume from scratch with AI assistance</p>
+                    <a href="/create-resume" class="action-btn btn-create">
+                        <i class="fas fa-plus"></i>
+                        Create Resume
+                    </a>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon icon-orange">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h2 class="action-title">Upload & Analyze</h2>
+                    <p class="action-desc">Upload existing resume for AI analysis and suggestions</p>
+                    <a href="/upload-resume" class="action-btn btn-upload">
+                        <i class="fas fa-upload"></i>
+                        Upload Resume
+                    </a>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon icon-blue">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h2 class="action-title">Resume History</h2>
+                    <p class="action-desc">View and manage your previously created resumes</p>
+                    <a href="/resume-history" class="action-btn btn-history">
+                        <i class="fas fa-list"></i>
+                        View History
+                    </a>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon icon-purple">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h2 class="action-title">Browse Templates</h2>
+                    <p class="action-desc">Explore professionally designed resume templates</p>
+                    <a href="/resume-templates" class="action-btn btn-templates">
+                        <i class="fas fa-layer-group"></i>
+                        View Templates
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Resumes -->
+            {% if resumes %}
+            <div class="recent-section">
+                <h2 class="section-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Resumes
+                </h2>
+
+                <div class="resume-table">
+                    <div class="table-header">
+                        <span>Created Date</span>
+                        <span>Last Validation</span>
+                        <span>Score</span>
+                        <span>Actions</span>
+                    </div>
+
+                    {% for resume in resumes[:5] %}
+                    {% set validation = resume.validations|selectattr("id")|max(attribute="id") if resume.validations else None %}
+                    <div class="table-row">
+                        <span class="resume-date">{{ resume.formatted_date() }}</span>
+                        <span class="resume-validation">
+                            {% if validation %}
+                                {{ validation.formatted_date() }}
+                            {% else %}
+                                Not analyzed yet
+                            {% endif %}
+                        </span>
+                        <span>
+                            {% if validation %}
+                                {% set score = validation.overall_score %}
+                                <span class="score-badge {% if score >= 80 %}score-excellent{% elif score >= 60 %}score-good{% else %}score-low{% endif %}">
+                                    {{ score }}/100
+                                </span>
+                            {% else %}
+                                <span class="score-badge score-pending">Pending</span>
+                            {% endif %}
+                        </span>
+                        <div class="table-actions">
+                            <a href="/resume-view/{{ resume.id }}" class="table-btn btn-view">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            {% if not validation %}
+                            <a href="/validate-resume/{{ resume.id }}" class="table-btn btn-analyze">
+                                <i class="fas fa-search"></i> Analyze
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="empty-title">No Resumes Yet</h3>
+                <p class="empty-desc">Create your first AI-powered resume to get started!</p>
+                <a href="/create-resume" class="action-btn btn-create" style="width: auto; display: inline-flex;">
+                    <i class="fas fa-plus"></i>
+                    Create Your First Resume
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

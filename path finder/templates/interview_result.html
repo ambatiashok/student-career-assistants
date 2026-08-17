@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Report – Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);
+            min-height: 100vh; color: #e2e8f0;
+        }
+
+        /* NAV */
+        .navbar { background: rgba(15,23,42,.95); backdrop-filter: blur(20px); padding: 1rem 2rem;
+            position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid rgba(59,130,246,.2); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 45px; height: 45px; background: linear-gradient(135deg,#3b82f6,#60a5fa); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .logo-text { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg,#fff,#60a5fa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-links { display: flex; gap: .5rem; align-items: center; }
+        .nav-link { color: #94a3b8; text-decoration: none; padding: .6rem 1rem; border-radius: 10px;
+            transition: all .3s; display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: .9rem; }
+        .nav-link:hover { color: #fff; background: rgba(59,130,246,.2); }
+        .logout-btn { background: rgba(239,68,68,.2); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+
+        .main-content { padding-top: 90px; }
+        .container { max-width: 980px; margin: 0 auto; padding: 2rem; }
+
+        /* HERO CARD */
+        .hero-card {
+            background: linear-gradient(135deg,rgba(16,185,129,.12),rgba(5,150,105,.07));
+            border: 1px solid rgba(16,185,129,.25); border-radius: 24px;
+            padding: 2.5rem; text-align: center; margin-bottom: 2rem;
+        }
+        .grade-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg,#10b981,#059669);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 10px 35px rgba(16,185,129,.4);
+        }
+        .grade-letter { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
+        .grade-sub    { font-size: .65rem; color: rgba(255,255,255,.75); font-weight: 600; letter-spacing: 1px; }
+        .hero-card h1 { font-size: 1.9rem; font-weight: 800; color: #fff; margin-bottom: .5rem;
+            background: linear-gradient(135deg,#fff,#6ee7b7); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-card .sub { color: #94a3b8; font-size: 1rem; margin-bottom: 1.5rem; }
+
+        .rec-badge { display: inline-flex; align-items: center; gap: 8px; padding: .5rem 1.25rem;
+            border-radius: 25px; font-weight: 700; font-size: .9rem; margin-bottom: 1rem; }
+        .rec-yes   { background: rgba(16,185,129,.2); border: 1px solid rgba(16,185,129,.35); color: #6ee7b7; }
+        .rec-maybe { background: rgba(245,158,11,.2); border: 1px solid rgba(245,158,11,.35); color: #fcd34d; }
+        .rec-no    { background: rgba(239,68,68,.2); border: 1px solid rgba(239,68,68,.35); color: #fca5a5; }
+
+        .hero-meta { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .hero-meta-item { text-align: center; }
+        .hero-meta-item .val  { font-size: 1.3rem; font-weight: 800; color: #fff; }
+        .hero-meta-item .lbl  { font-size: .72rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+
+        /* SCORE GRID */
+        .score-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .score-card {
+            background: rgba(30,41,59,.5); border: 1px solid rgba(59,130,246,.15);
+            border-radius: 18px; padding: 1.5rem; text-align: center; transition: all .3s;
+        }
+        .score-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(59,130,246,.15); }
+        .score-card i { font-size: 1.6rem; margin-bottom: .5rem; }
+        .score-card .score-num { font-size: 2rem; font-weight: 800; margin-bottom: .25rem; }
+        .score-card .score-lbl { font-size: .8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+        .score-card .score-bar { height: 5px; border-radius: 99px; background: rgba(255,255,255,.08); margin-top: .75rem; overflow: hidden; }
+        .score-card .score-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+        .sc-green  { color: #10b981; } .sc-green  .score-bar-fill { background: linear-gradient(90deg,#10b981,#059669); }
+        .sc-blue   { color: #3b82f6; } .sc-blue   .score-bar-fill { background: linear-gradient(90deg,#3b82f6,#2563eb); }
+        .sc-purple { color: #8b5cf6; } .sc-purple .score-bar-fill { background: linear-gradient(90deg,#8b5cf6,#7c3aed); }
+        .sc-orange { color: #f97316; } .sc-orange .score-bar-fill { background: linear-gradient(90deg,#f97316,#ea580c); }
+
+        /* SECTION CARDS */
+        .section-card { background: rgba(30,41,59,.5); border: 1px solid rgba(59,130,246,.15); border-radius: 20px; padding: 1.75rem; margin-bottom: 1.5rem; }
+        .section-card h3 { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+        .section-card h3 i { color: #3b82f6; }
+
+        /* LISTS */
+        .tag-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .tag {
+            padding: .35rem .85rem; border-radius: 20px; font-size: .82rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tag-green  { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3); color: #6ee7b7; }
+        .tag-red    { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+        .tag-blue   { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); color: #93c5fd; }
+
+        /* SUMMARY */
+        .summary-text { color: #94a3b8; line-height: 1.75; font-size: .95rem; padding: 1rem; background: rgba(15,23,42,.4); border-radius: 12px; border-left: 3px solid #10b981; }
+
+        /* Q BREAKDOWN */
+        .qb-item { border: 1px solid rgba(59,130,246,.12); border-radius: 14px; padding: 1.1rem; margin-bottom: .85rem; background: rgba(15,23,42,.3); }
+        .qb-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .5rem; gap: 1rem; }
+        .qb-q { font-size: .88rem; font-weight: 600; color: #e2e8f0; flex: 1; }
+        .qb-score { font-size: .82rem; font-weight: 700; padding: .2rem .55rem; border-radius: 8px; white-space: nowrap; }
+        .qb-a { font-size: .82rem; color: #64748b; margin-bottom: .45rem; line-height: 1.5; }
+        .qb-fb { font-size: .8rem; color: #94a3b8; font-style: italic; border-top: 1px solid rgba(59,130,246,.1); padding-top: .45rem; }
+
+        /* ACTIONS */
+        .action-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; margin-bottom: 3rem; }
+        .btn-primary {
+            flex: 1; min-width: 180px; padding: .9rem 1.5rem;
+            background: linear-gradient(135deg,#10b981,#059669);
+            border: none; border-radius: 14px; color: white; font-size: .95rem; font-weight: 700;
+            cursor: pointer; text-decoration: none; text-align: center; transition: all .3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,.4); }
+        .btn-secondary {
+            flex: 1; min-width: 180px; padding: .9rem 1.5rem;
+            background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3);
+            border-radius: 14px; color: #93c5fd; font-size: .95rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; text-align: center; transition: all .3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-secondary:hover { background: rgba(59,130,246,.25); }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-compass"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard"  class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/interview"  class="nav-link"><i class="fas fa-user-tie"></i> New Interview</a>
+            <a href="/interview/history" class="nav-link"><i class="fas fa-history"></i> History</a>
+            <a href="/logout"     class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+
+        <!-- HERO -->
+        <div class="hero-card">
+            <div class="grade-circle">
+                <div class="grade-letter">{{ iv_session.grade() }}</div>
+                <div class="grade-sub">GRADE</div>
+            </div>
+            <h1>Interview Complete!</h1>
+            <p class="sub">{{ iv_session.job_role }} &bull; {{ iv_session.interview_type|title }} &bull; {{ iv_session.duration_minutes() }} min</p>
+
+            {% set rec = report.get('hire_recommendation','Maybe') %}
+            {% if 'strong yes' in rec|lower or rec|lower == 'yes' %}
+                <div class="rec-badge rec-yes"><i class="fas fa-thumbs-up"></i> {{ rec }}</div>
+            {% elif 'no' in rec|lower %}
+                <div class="rec-badge rec-no"><i class="fas fa-thumbs-down"></i> {{ rec }}</div>
+            {% else %}
+                <div class="rec-badge rec-maybe"><i class="fas fa-question-circle"></i> {{ rec }}</div>
+            {% endif %}
+
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <div class="val" style="color:#10b981">{{ "%.0f"|format(iv_session.overall_score) }}</div>
+                    <div class="lbl">Overall Score</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="val" style="color:#3b82f6">{{ iv_session.question_count }}</div>
+                    <div class="lbl">Questions</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="val" style="color:#8b5cf6">{{ iv_session.duration_minutes() }}m</div>
+                    <div class="lbl">Duration</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="val" style="color:#f97316">{{ iv_session.formatted_date() }}</div>
+                    <div class="lbl">Date</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCORE BREAKDOWN -->
+        <div class="score-grid">
+            <div class="score-card sc-green">
+                <i class="fas fa-star"></i>
+                <div class="score-num">{{ "%.0f"|format(iv_session.overall_score) }}<span style="font-size:.9rem;opacity:.6">/100</span></div>
+                <div class="score-lbl">Overall</div>
+                <div class="score-bar"><div class="score-bar-fill" style="width:{{ iv_session.overall_score }}%"></div></div>
+            </div>
+            <div class="score-card sc-blue">
+                <i class="fas fa-code"></i>
+                <div class="score-num">{{ "%.0f"|format(iv_session.technical_score) }}<span style="font-size:.9rem;opacity:.6">/100</span></div>
+                <div class="score-lbl">Technical</div>
+                <div class="score-bar"><div class="score-bar-fill" style="width:{{ iv_session.technical_score }}%"></div></div>
+            </div>
+            <div class="score-card sc-purple">
+                <i class="fas fa-comments"></i>
+                <div class="score-num">{{ "%.0f"|format(iv_session.communication_score) }}<span style="font-size:.9rem;opacity:.6">/100</span></div>
+                <div class="score-lbl">Communication</div>
+                <div class="score-bar"><div class="score-bar-fill" style="width:{{ iv_session.communication_score }}%"></div></div>
+            </div>
+            <div class="score-card sc-orange">
+                <i class="fas fa-bolt"></i>
+                <div class="score-num">{{ "%.0f"|format(iv_session.confidence_score) }}<span style="font-size:.9rem;opacity:.6">/100</span></div>
+                <div class="score-lbl">Confidence</div>
+                <div class="score-bar"><div class="score-bar-fill" style="width:{{ iv_session.confidence_score }}%"></div></div>
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        {% if report.get('summary') %}
+        <div class="section-card">
+            <h3><i class="fas fa-align-left"></i> Overall Assessment</h3>
+            <div class="summary-text">{{ report.summary }}</div>
+        </div>
+        {% endif %}
+
+        <!-- STRENGTHS & WEAKNESSES -->
+        <div class="section-card">
+            <h3><i class="fas fa-thumbs-up"></i> Strengths</h3>
+            <div class="tag-list">
+                {% for s in report.get('strengths', []) %}
+                    <span class="tag tag-green"><i class="fas fa-check-circle"></i> {{ s }}</span>
+                {% else %}
+                    <span style="color:#64748b;font-size:.88rem">No data available</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-exclamation-circle"></i> Areas to Improve</h3>
+            <div class="tag-list">
+                {% for w in report.get('weaknesses', []) %}
+                    <span class="tag tag-red"><i class="fas fa-arrow-up"></i> {{ w }}</span>
+                {% else %}
+                    <span style="color:#64748b;font-size:.88rem">No data available</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-lightbulb"></i> Improvement Suggestions</h3>
+            <div class="tag-list">
+                {% for sg in report.get('suggestions', []) %}
+                    <span class="tag tag-blue"><i class="fas fa-arrow-right"></i> {{ sg }}</span>
+                {% else %}
+                    <span style="color:#64748b;font-size:.88rem">No data available</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Q BREAKDOWN -->
+        {% if report.get('question_breakdown') %}
+        <div class="section-card">
+            <h3><i class="fas fa-list-ol"></i> Question-by-Question Breakdown</h3>
+            {% for item in report.question_breakdown %}
+                {% set sc = item.get('score', 0)|float %}
+                <div class="qb-item">
+                    <div class="qb-header">
+                        <div class="qb-q"><i class="fas fa-question-circle" style="color:#3b82f6;margin-right:6px"></i>{{ item.get('question','') }}</div>
+                        <span class="qb-score {% if sc >= 7 %}score-hi{% elif sc >= 4 %}score-mid{% else %}score-lo{% endif %}">
+                            {{ "%.1f"|format(sc) }}/10
+                        </span>
+                    </div>
+                    {% if item.get('answer') %}
+                        <div class="qb-a"><i class="fas fa-user" style="color:#8b5cf6;margin-right:4px"></i>{{ item.answer[:200] }}{% if item.answer|length > 200 %}…{% endif %}</div>
+                    {% endif %}
+                    {% if item.get('feedback') %}
+                        <div class="qb-fb"><i class="fas fa-comments" style="color:#10b981;margin-right:4px"></i>{{ item.feedback }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ACTIONS -->
+        <div class="action-row">
+            <a href="/interview" class="btn-primary"><i class="fas fa-redo"></i> Start New Interview</a>
+            <a href="/interview/history" class="btn-secondary"><i class="fas fa-history"></i> View History</a>
+            <a href="/dashboard" class="btn-secondary"><i class="fas fa-home"></i> Dashboard</a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .score-hi  { background:rgba(16,185,129,.2);  color:#6ee7b7; }
+    .score-mid { background:rgba(245,158,11,.2);  color:#fcd34d; }
+    .score-lo  { background:rgba(239,68,68,.2);   color:#fca5a5; }
+</style>
+</body>
+</html>

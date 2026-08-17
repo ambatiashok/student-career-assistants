@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduler – Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;overflow-x:hidden}
+
+        /* ── NAV ── */
+        .navbar{background:rgba(15,23,42,.95);backdrop-filter:blur(20px);padding:1rem 2rem;position:fixed;width:100%;top:0;z-index:1000;border-bottom:1px solid rgba(59,130,246,.2)}
+        .nav-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+        .logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+        .logo-icon{width:45px;height:45px;background:linear-gradient(135deg,#3b82f6,#60a5fa);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;box-shadow:0 4px 15px rgba(59,130,246,.4)}
+        .logo-text{font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,#fff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .nav-links{display:flex;gap:.5rem;align-items:center}
+        .nav-link{color:#94a3b8;text-decoration:none;padding:.6rem 1rem;border-radius:10px;transition:all .3s;display:flex;align-items:center;gap:8px;font-weight:500;font-size:.9rem}
+        .nav-link:hover,.nav-link.active{color:#fff;background:rgba(59,130,246,.2)}
+        .nav-link.active{background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 4px 15px rgba(59,130,246,.3)}
+        .logout-btn{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+        .logout-btn:hover{background:rgba(239,68,68,.3);color:#fca5a5}
+
+        /* ── LAYOUT ── */
+        .main-content{padding-top:90px;min-height:100vh}
+        .container{max-width:1400px;margin:0 auto;padding:2rem}
+
+        /* ── PAGE HEADER ── */
+        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+        .page-title{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#fff,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .page-subtitle{color:#94a3b8;margin-top:.25rem;font-size:.95rem}
+        .new-event-btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .3s;box-shadow:0 4px 15px rgba(59,130,246,.4)}
+        .new-event-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.5)}
+
+        /* ── STATS ROW ── */
+        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem}
+        .stat-card{background:rgba(30,41,59,.6);backdrop-filter:blur(20px);border:1px solid rgba(59,130,246,.15);border-radius:16px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;transition:all .3s}
+        .stat-card:hover{transform:translateY(-2px);border-color:rgba(59,130,246,.35)}
+        .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+        .stat-value{font-size:1.8rem;font-weight:800;line-height:1}
+        .stat-label{font-size:.8rem;color:#94a3b8;margin-top:3px}
+        .si-blue{background:rgba(59,130,246,.2);color:#3b82f6}
+        .si-green{background:rgba(16,185,129,.2);color:#10b981}
+        .si-amber{background:rgba(245,158,11,.2);color:#f59e0b}
+        .si-red{background:rgba(239,68,68,.2);color:#ef4444}
+        .si-purple{background:rgba(139,92,246,.2);color:#8b5cf6}
+
+        /* ── MAIN GRID ── */
+        .main-grid{display:grid;grid-template-columns:1fr 380px;gap:1.5rem;align-items:start}
+
+        /* ── CALENDAR ── */
+        .calendar-card{background:rgba(30,41,59,.6);backdrop-filter:blur(20px);border:1px solid rgba(59,130,246,.15);border-radius:20px;overflow:hidden}
+        .calendar-header{padding:1.5rem 1.75rem;border-bottom:1px solid rgba(59,130,246,.1);display:flex;align-items:center;justify-content:space-between}
+        .cal-nav{display:flex;align-items:center;gap:1rem}
+        .cal-nav-btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.2);color:#60a5fa;width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+        .cal-nav-btn:hover{background:rgba(59,130,246,.3)}
+        .cal-month-label{font-size:1.25rem;font-weight:700;min-width:180px;text-align:center}
+        .cal-view-tabs{display:flex;gap:.5rem}
+        .cal-view-tab{background:transparent;border:1px solid rgba(59,130,246,.2);color:#94a3b8;padding:.4rem .9rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .3s}
+        .cal-view-tab.active{background:rgba(59,130,246,.25);color:#60a5fa;border-color:rgba(59,130,246,.4)}
+        .calendar-grid{padding:1.25rem}
+        .cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:.5rem}
+        .cal-day-name{color:#64748b;font-size:.8rem;font-weight:600;padding:.5rem}
+        .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+        .cal-cell{min-height:80px;border-radius:10px;padding:6px;cursor:pointer;transition:all .3s;position:relative;border:1px solid transparent}
+        .cal-cell:hover{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.2)}
+        .cal-cell.today{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4)}
+        .cal-cell.other-month{opacity:.3}
+        .cal-cell.selected{background:rgba(59,130,246,.25);border-color:rgba(59,130,246,.5)}
+        .cal-date-num{font-size:.85rem;font-weight:600;color:#94a3b8;margin-bottom:4px}
+        .cal-cell.today .cal-date-num{color:#60a5fa;font-weight:800}
+        .cal-dot{height:6px;border-radius:3px;margin-bottom:2px;font-size:.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
+        .cal-more{font-size:.65rem;color:#64748b;font-weight:600}
+
+        /* ── RIGHT PANEL ── */
+        .right-panel{display:flex;flex-direction:column;gap:1.25rem}
+
+        /* ── TODAY AGENDA ── */
+        .panel-card{background:rgba(30,41,59,.6);backdrop-filter:blur(20px);border:1px solid rgba(59,130,246,.15);border-radius:20px;overflow:hidden}
+        .panel-header{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(59,130,246,.1);display:flex;align-items:center;gap:.75rem}
+        .panel-header h3{font-size:1rem;font-weight:700}
+        .badge-count{background:rgba(59,130,246,.25);color:#60a5fa;padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600;margin-left:auto}
+        .panel-body{padding:1.25rem 1.5rem;max-height:300px;overflow-y:auto}
+        .panel-body::-webkit-scrollbar{width:4px}
+        .panel-body::-webkit-scrollbar-track{background:transparent}
+        .panel-body::-webkit-scrollbar-thumb{background:rgba(59,130,246,.3);border-radius:2px}
+        .agenda-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 0;border-bottom:1px solid rgba(59,130,246,.06)}
+        .agenda-item:last-child{border-bottom:none}
+        .agenda-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+        .agenda-info{flex:1;min-width:0}
+        .agenda-title{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .agenda-meta{font-size:.75rem;color:#64748b;margin-top:2px}
+        .agenda-actions{display:flex;gap:.5rem;margin-top:.5rem}
+        .agenda-btn{font-size:.7rem;padding:.25rem .6rem;border-radius:6px;border:none;cursor:pointer;font-weight:600;transition:all .2s}
+        .btn-done{background:rgba(16,185,129,.2);color:#10b981}
+        .btn-done:hover{background:rgba(16,185,129,.35)}
+        .btn-skip{background:rgba(239,68,68,.15);color:#f87171}
+        .btn-skip:hover{background:rgba(239,68,68,.3)}
+        .empty-state{text-align:center;padding:2rem 1rem;color:#64748b;font-size:.9rem}
+        .empty-state i{font-size:2rem;margin-bottom:.75rem;display:block;opacity:.5}
+
+        /* ── UPCOMING LIST ── */
+        .upcoming-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 0;border-bottom:1px solid rgba(59,130,246,.06)}
+        .upcoming-item:last-child{border-bottom:none}
+        .upcoming-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+        .upcoming-info{flex:1;min-width:0}
+        .upcoming-title{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .upcoming-time{font-size:.72rem;color:#64748b;margin-top:2px}
+        .priority-badge{font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:5px;text-transform:uppercase}
+        .p-high{background:rgba(239,68,68,.2);color:#f87171}
+        .p-medium{background:rgba(245,158,11,.2);color:#f59e0b}
+        .p-low{background:rgba(16,185,129,.2);color:#10b981}
+
+        /* ── EVENTS TABLE ── */
+        .events-section{margin-top:2rem}
+        .events-card{background:rgba(30,41,59,.6);backdrop-filter:blur(20px);border:1px solid rgba(59,130,246,.15);border-radius:20px;overflow:hidden}
+        .events-header{padding:1.25rem 1.75rem;border-bottom:1px solid rgba(59,130,246,.1);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+        .events-header h3{font-size:1.1rem;font-weight:700;margin-right:auto}
+        .filter-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+        .filter-tab{background:transparent;border:1px solid rgba(59,130,246,.2);color:#94a3b8;padding:.35rem .85rem;border-radius:8px;cursor:pointer;font-size:.8rem;transition:all .3s}
+        .filter-tab.active{background:rgba(59,130,246,.25);color:#60a5fa;border-color:rgba(59,130,246,.4)}
+        .events-table{width:100%;border-collapse:collapse}
+        .events-table th{padding:1rem 1.25rem;text-align:left;font-size:.8rem;color:#64748b;font-weight:600;border-bottom:1px solid rgba(59,130,246,.1);background:rgba(15,23,42,.3)}
+        .events-table td{padding:1rem 1.25rem;border-bottom:1px solid rgba(59,130,246,.06);font-size:.875rem}
+        .events-table tr:last-child td{border-bottom:none}
+        .events-table tr:hover td{background:rgba(59,130,246,.05)}
+        .type-badge{display:inline-flex;align-items:center;gap:5px;padding:.3rem .7rem;border-radius:8px;font-size:.75rem;font-weight:600;background:rgba(59,130,246,.1);color:#60a5fa}
+        .status-chip{display:inline-block;padding:.25rem .65rem;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:uppercase}
+        .s-scheduled{background:rgba(59,130,246,.2);color:#60a5fa}
+        .s-completed{background:rgba(16,185,129,.2);color:#10b981}
+        .s-missed{background:rgba(239,68,68,.2);color:#f87171}
+        .s-cancelled{background:rgba(100,116,139,.2);color:#94a3b8}
+        .s-ongoing{background:rgba(245,158,11,.2);color:#f59e0b}
+        .action-btns{display:flex;gap:.5rem}
+        .icon-btn{background:none;border:none;cursor:pointer;padding:.4rem;border-radius:6px;transition:all .2s;font-size:.85rem}
+        .icon-btn:hover{background:rgba(59,130,246,.2)}
+        .icon-btn.del:hover{background:rgba(239,68,68,.2);color:#f87171}
+        .icon-btn.done-btn{color:#10b981}
+        .icon-btn.edit-btn{color:#60a5fa}
+
+        /* ── MODAL ── */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem}
+        .modal-overlay.open{display:flex}
+        .modal{background:#1e293b;border:1px solid rgba(59,130,246,.25);border-radius:24px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.5)}
+        .modal::-webkit-scrollbar{width:4px}
+        .modal::-webkit-scrollbar-thumb{background:rgba(59,130,246,.3);border-radius:2px}
+        .modal-header{padding:1.5rem 1.75rem 1.25rem;border-bottom:1px solid rgba(59,130,246,.1);display:flex;align-items:center;justify-content:space-between}
+        .modal-title{font-size:1.2rem;font-weight:700}
+        .modal-close{background:none;border:none;color:#94a3b8;font-size:1.3rem;cursor:pointer;padding:.3rem;border-radius:8px;transition:all .2s;line-height:1}
+        .modal-close:hover{background:rgba(239,68,68,.2);color:#f87171}
+        .modal-body{padding:1.5rem 1.75rem}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+        .form-row.full{grid-template-columns:1fr}
+        .form-group{display:flex;flex-direction:column;gap:.4rem}
+        .form-label{font-size:.82rem;font-weight:600;color:#94a3b8}
+        .form-control{background:rgba(15,23,42,.6);border:1px solid rgba(59,130,246,.2);color:#e2e8f0;padding:.7rem 1rem;border-radius:10px;font-family:inherit;font-size:.9rem;transition:all .3s}
+        .form-control:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+        .form-control option{background:#1e293b}
+        .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+        .type-option{display:none}
+        .type-label{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.6rem;border-radius:10px;border:1px solid rgba(59,130,246,.15);cursor:pointer;transition:all .3s;font-size:.75rem;font-weight:600;color:#94a3b8}
+        .type-label i{font-size:1.1rem}
+        .type-option:checked + .type-label{border-color:var(--tc);background:rgba(var(--tc-rgb),.15);color:var(--tc)}
+        .modal-footer{padding:1rem 1.75rem 1.5rem;display:flex;justify-content:flex-end;gap:.75rem;border-top:1px solid rgba(59,130,246,.1)}
+        .btn-primary{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:.7rem 1.5rem;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.4)}
+        .btn-secondary{background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.25);padding:.7rem 1.5rem;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s}
+        .btn-secondary:hover{background:rgba(100,116,139,.35)}
+
+        /* ── TOAST ── */
+        .toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;min-width:280px;padding:1rem 1.5rem;border-radius:14px;display:flex;align-items:center;gap:.75rem;font-size:.9rem;font-weight:600;transform:translateY(100px);opacity:0;transition:all .4s cubic-bezier(.175,.885,.32,1.275)}
+        .toast.show{transform:translateY(0);opacity:1}
+        .toast.success{background:rgba(16,185,129,.9);color:#fff;border:1px solid rgba(16,185,129,.6)}
+        .toast.error{background:rgba(239,68,68,.9);color:#fff;border:1px solid rgba(239,68,68,.6)}
+        .toast.info{background:rgba(59,130,246,.9);color:#fff;border:1px solid rgba(59,130,246,.6)}
+
+        /* ── DETAIL DRAWER ── */
+        .detail-drawer{position:fixed;right:-420px;top:0;width:420px;height:100vh;background:#1e293b;border-left:1px solid rgba(59,130,246,.2);z-index:1500;transition:right .35s ease;padding-top:80px;display:flex;flex-direction:column}
+        .detail-drawer.open{right:0}
+        .drawer-header{padding:1.5rem;border-bottom:1px solid rgba(59,130,246,.1);display:flex;align-items:flex-start;gap:1rem}
+        .drawer-event-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+        .drawer-title{font-size:1.1rem;font-weight:700;line-height:1.3}
+        .drawer-type{font-size:.8rem;color:#94a3b8;margin-top:3px;text-transform:capitalize}
+        .drawer-close{margin-left:auto;background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;padding:.3rem;border-radius:8px;transition:all .2s}
+        .drawer-close:hover{background:rgba(239,68,68,.2);color:#f87171}
+        .drawer-body{padding:1.5rem;flex:1;overflow-y:auto}
+        .detail-row{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
+        .detail-icon{width:32px;height:32px;background:rgba(59,130,246,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#60a5fa;flex-shrink:0}
+        .detail-label{font-size:.75rem;color:#64748b;margin-bottom:2px}
+        .detail-value{font-size:.9rem;font-weight:500}
+        .detail-divider{border:none;border-top:1px solid rgba(59,130,246,.08);margin:1rem 0}
+        .drawer-footer{padding:1rem 1.5rem;border-top:1px solid rgba(59,130,246,.1);display:flex;gap:.75rem}
+        .drawer-btn{flex:1;padding:.65rem;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+        .db-done{background:rgba(16,185,129,.2);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+        .db-done:hover{background:rgba(16,185,129,.35)}
+        .db-edit{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+        .db-edit:hover{background:rgba(59,130,246,.35)}
+        .db-del{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+        .db-del:hover{background:rgba(239,68,68,.3)}
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:1100px){.main-grid{grid-template-columns:1fr}.right-panel{display:grid;grid-template-columns:1fr 1fr}.stats-row{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}.right-panel{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.type-grid{grid-template-columns:repeat(2,1fr)}.detail-drawer{width:100%}}
+    </style>
+</head>
+<body>
+<!-- ── NAV ── -->
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-route"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard"       class="nav-link"><i class="fas fa-home"></i>Dashboard</a>
+            <a href="/generate-roadmap" class="nav-link"><i class="fas fa-map"></i>Roadmap</a>
+            <a href="/mock-test"        class="nav-link"><i class="fas fa-brain"></i>Mock Test</a>
+            <a href="/gd-rooms"         class="nav-link"><i class="fas fa-comments"></i>GD Rooms</a>
+            <a href="/upload-resume"    class="nav-link"><i class="fas fa-file-upload"></i>Resume</a>
+            <a href="/schedule"         class="nav-link active"><i class="fas fa-calendar-alt"></i>Schedule</a>
+            <a href="/profile"          class="nav-link"><i class="fas fa-user"></i>Profile</a>
+            <a href="/logout"           class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i>Logout</a>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+<div class="container">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fas fa-calendar-alt" style="font-size:1.5rem;opacity:.8"></i> My Schedule</h1>
+            <p class="page-subtitle">Plan sessions, track progress, never miss a preparation activity</p>
+        </div>
+        <button class="new-event-btn" onclick="openCreateModal()">
+            <i class="fas fa-plus"></i> New Event
+        </button>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon si-blue"><i class="fas fa-calendar-check"></i></div>
+            <div><div class="stat-value">{{ total }}</div><div class="stat-label">Total Events</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon si-green"><i class="fas fa-check-circle"></i></div>
+            <div><div class="stat-value">{{ completed_count }}</div><div class="stat-label">Completed</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon si-purple"><i class="fas fa-clock"></i></div>
+            <div><div class="stat-value">{{ upcoming_list|length }}</div><div class="stat-label">Upcoming</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon si-red"><i class="fas fa-times-circle"></i></div>
+            <div><div class="stat-value">{{ missed_count }}</div><div class="stat-label">Missed</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon si-amber"><i class="fas fa-sun"></i></div>
+            <div><div class="stat-value">{{ today_list|length }}</div><div class="stat-label">Today</div></div>
+        </div>
+    </div>
+
+    <!-- MAIN GRID: calendar + right panel -->
+    <div class="main-grid">
+        <!-- CALENDAR -->
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <div class="cal-nav">
+                    <button class="cal-nav-btn" id="prevMonth" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <div class="cal-month-label" id="monthLabel"></div>
+                    <button class="cal-nav-btn" id="nextMonth" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="cal-view-tabs">
+                    <button class="cal-view-tab active" id="tabMonth" onclick="setView('month',this)">Month</button>
+                    <button class="cal-view-tab" id="tabWeek"  onclick="setView('week',this)">Week</button>
+                    <button class="cal-view-tab" id="tabDay"   onclick="setView('day',this)">Day</button>
+                </div>
+            </div>
+            <div class="calendar-grid">
+                <div class="cal-days-header" id="calDaysHeader"></div>
+                <div class="cal-cells" id="calCells"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <!-- TODAY'S AGENDA -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <i class="fas fa-sun" style="color:#f59e0b"></i>
+                    <h3>Today's Agenda</h3>
+                    <span class="badge-count" id="todayCount">{{ today_list|length }}</span>
+                </div>
+                <div class="panel-body">
+                    {% if today_list %}
+                        {% for s in today_list %}
+                        <div class="agenda-item" id="today-{{ s.id }}">
+                            <div class="agenda-dot" style="background:{{ s.event_color() }}"></div>
+                            <div class="agenda-info">
+                                <div class="agenda-title">{{ s.title }}</div>
+                                <div class="agenda-meta">
+                                    <i class="fas fa-clock" style="font-size:.7rem"></i> {{ s.time }}
+                                    &nbsp;·&nbsp;{{ s.duration }} min
+                                    &nbsp;·&nbsp;<span style="text-transform:capitalize">{{ s.event_type.replace('_',' ') }}</span>
+                                </div>
+                                <div class="agenda-actions">
+                                    <button class="agenda-btn btn-done" onclick="quickStatus({{ s.id }},'completed')">
+                                        <i class="fas fa-check"></i> Done
+                                    </button>
+                                    <button class="agenda-btn btn-skip" onclick="quickStatus({{ s.id }},'missed')">
+                                        <i class="fas fa-times"></i> Skip
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-coffee"></i>
+                            No events today. Enjoy your free time or schedule something!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- UPCOMING -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <i class="fas fa-bolt" style="color:#3b82f6"></i>
+                    <h3>Upcoming Events</h3>
+                    <span class="badge-count">{{ upcoming_list|length }}</span>
+                </div>
+                <div class="panel-body">
+                    {% if upcoming_list %}
+                        {% for s in upcoming_list[:8] %}
+                        <div class="upcoming-item" onclick="openDrawer({{ s.id }})">
+                            <div class="upcoming-icon" style="background:rgba({{ '59,130,246' if s.event_type=='mock_test' else '139,92,246' if s.event_type=='gd_session' else '16,185,129' if s.event_type=='interview' else '245,158,11' if s.event_type=='resume_review' else '6,182,212' if s.event_type=='roadmap_task' else '107,114,128' }},.2);color:{{ s.event_color() }}">
+                                <i class="fas {{ s.event_icon() }}"></i>
+                            </div>
+                            <div class="upcoming-info">
+                                <div class="upcoming-title">{{ s.title }}</div>
+                                <div class="upcoming-time">{{ s.formatted_date() }} · {{ s.time }}</div>
+                            </div>
+                            <span class="priority-badge p-{{ s.priority }}">{{ s.priority }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-plus"></i>
+                            No upcoming events. Click "New Event" to plan your sessions!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALL EVENTS TABLE -->
+    <div class="events-section">
+        <div class="events-card">
+            <div class="events-header">
+                <h3><i class="fas fa-list-ul" style="color:#3b82f6;margin-right:.5rem"></i>All Events</h3>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterEvents('all',this)">All</button>
+                    <button class="filter-tab" onclick="filterEvents('scheduled',this)">Scheduled</button>
+                    <button class="filter-tab" onclick="filterEvents('completed',this)">Completed</button>
+                    <button class="filter-tab" onclick="filterEvents('missed',this)">Missed</button>
+                    <button class="filter-tab" onclick="filterEvents('cancelled',this)">Cancelled</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="events-table" id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Type</th>
+                            <th>Date &amp; Time</th>
+                            <th>Duration</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        {% if all_schedules %}
+                            {% for s in all_schedules|sort(attribute='date', reverse=False) %}
+                            <tr data-status="{{ s.status }}" data-id="{{ s.id }}" class="event-row">
+                                <td>
+                                    <div style="font-weight:600;font-size:.875rem">{{ s.title }}</div>
+                                    {% if s.description %}
+                                    <div style="font-size:.75rem;color:#64748b;margin-top:2px">{{ s.description[:60] }}{% if s.description|length > 60 %}…{% endif %}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="type-badge" style="background:rgba({{ '59,130,246' if s.event_type=='mock_test' else '139,92,246' if s.event_type=='gd_session' else '16,185,129' if s.event_type=='interview' else '245,158,11' if s.event_type=='resume_review' else '6,182,212' if s.event_type=='roadmap_task' else '107,114,128' }},.15);color:{{ s.event_color() }}">
+                                        <i class="fas {{ s.event_icon() }}"></i>
+                                        {{ s.event_type.replace('_',' ')|title }}
+                                    </span>
+                                </td>
+                                <td>{{ s.formatted_date() }}<br><span style="font-size:.75rem;color:#64748b">{{ s.time }}</span></td>
+                                <td>{{ s.duration }} min</td>
+                                <td><span class="priority-badge p-{{ s.priority }}">{{ s.priority }}</span></td>
+                                <td><span class="status-chip s-{{ s.status }}">{{ s.status }}</span></td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="icon-btn done-btn" title="Mark Complete" onclick="quickStatus({{ s.id }},'completed')"><i class="fas fa-check"></i></button>
+                                        <button class="icon-btn edit-btn" title="Edit" onclick="openEditModal({{ s.id }})"><i class="fas fa-edit"></i></button>
+                                        <button class="icon-btn del" title="Delete" onclick="deleteEvent({{ s.id }})"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="7" style="text-align:center;padding:3rem;color:#64748b">
+                                <i class="fas fa-calendar-plus" style="font-size:2rem;margin-bottom:1rem;display:block;opacity:.4"></i>
+                                No events yet. Click <strong>New Event</strong> to get started!
+                            </td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<!-- ══════════════ CREATE / EDIT MODAL ══════════════ -->
+<div class="modal-overlay" id="eventModal">
+    <div class="modal" id="modalBox">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle"><i class="fas fa-plus-circle" style="color:#3b82f6;margin-right:.5rem"></i>New Event</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId" value="">
+
+            <!-- TYPE SELECT -->
+            <div class="form-group" style="margin-bottom:1rem">
+                <div class="form-label">Event Type</div>
+                <div class="type-grid">
+                    <div>
+                        <input type="radio" name="evt_type" id="t_mock_test"     value="mock_test"     class="type-option" checked>
+                        <label for="t_mock_test"     class="type-label" style="--tc:#3b82f6;--tc-rgb:59,130,246"><i class="fas fa-pencil-alt" style="color:#3b82f6"></i>Mock Test</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="evt_type" id="t_gd_session"    value="gd_session"    class="type-option">
+                        <label for="t_gd_session"    class="type-label" style="--tc:#8b5cf6;--tc-rgb:139,92,246"><i class="fas fa-comments" style="color:#8b5cf6"></i>GD Session</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="evt_type" id="t_interview"     value="interview"     class="type-option">
+                        <label for="t_interview"     class="type-label" style="--tc:#10b981;--tc-rgb:16,185,129"><i class="fas fa-user-tie" style="color:#10b981"></i>Interview</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="evt_type" id="t_resume_review" value="resume_review" class="type-option">
+                        <label for="t_resume_review" class="type-label" style="--tc:#f59e0b;--tc-rgb:245,158,11"><i class="fas fa-file-alt" style="color:#f59e0b"></i>Resume Review</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="evt_type" id="t_roadmap_task"  value="roadmap_task"  class="type-option">
+                        <label for="t_roadmap_task"  class="type-label" style="--tc:#06b6d4;--tc-rgb:6,182,212"><i class="fas fa-map-signs" style="color:#06b6d4"></i>Roadmap Task</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="evt_type" id="t_custom"        value="custom"        class="type-option">
+                        <label for="t_custom"        class="type-label" style="--tc:#6b7280;--tc-rgb:107,114,128"><i class="fas fa-calendar-check" style="color:#6b7280"></i>Custom</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TITLE -->
+            <div class="form-row full">
+                <div class="form-group">
+                    <div class="form-label">Title *</div>
+                    <input type="text" class="form-control" id="f_title" placeholder="e.g. Aptitude Mock Test – Round 2" maxlength="200">
+                </div>
+            </div>
+
+            <!-- DATE + TIME -->
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-label">Date *</div>
+                    <input type="date" class="form-control" id="f_date">
+                </div>
+                <div class="form-group">
+                    <div class="form-label">Time *</div>
+                    <input type="time" class="form-control" id="f_time">
+                </div>
+            </div>
+
+            <!-- DURATION + PRIORITY -->
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-label">Duration (minutes)</div>
+                    <select class="form-control" id="f_duration">
+                        <option value="30">30 min</option>
+                        <option value="60" selected>1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                        <option value="240">4 hours</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="form-label">Priority</div>
+                    <select class="form-control" id="f_priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- REMINDER -->
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-label">Remind Me Before</div>
+                    <select class="form-control" id="f_reminder">
+                        <option value="10">10 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="120">2 hours</option>
+                        <option value="1440">1 day</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="form-label">Link to Roadmap (optional)</div>
+                    <select class="form-control" id="f_linked">
+                        <option value="">— None —</option>
+                        {% for r in roadmaps %}
+                        <option value="{{ r.id }}">{{ r.goal[:40] }}{% if r.goal|length > 40 %}…{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="form-row full" style="margin-bottom:.75rem">
+                <div class="form-group">
+                    <div class="form-label">Description</div>
+                    <textarea class="form-control" id="f_description" rows="2" placeholder="Brief description of the session…" style="resize:vertical"></textarea>
+                </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="form-row full">
+                <div class="form-group">
+                    <div class="form-label">Personal Notes</div>
+                    <textarea class="form-control" id="f_notes" rows="2" placeholder="Topics to cover, resources to use, goals…" style="resize:vertical"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveEvent()"><i class="fas fa-save" style="margin-right:.35rem"></i>Save Event</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ DETAIL DRAWER ══════════════ -->
+<div class="detail-drawer" id="detailDrawer">
+    <div class="drawer-header">
+        <div class="drawer-event-icon" id="drawerIcon"></div>
+        <div style="flex:1;min-width:0">
+            <div class="drawer-title" id="drawerTitle"></div>
+            <div class="drawer-type" id="drawerType"></div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer" id="drawerFooter"></div>
+</div>
+<div id="drawerOverlay" style="display:none;position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,.3)" onclick="closeDrawer()"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════ DATA + JS ══════════════ -->
+<script>
+// ── Raw event data from server ──
+const ALL_EVENTS = {{ calendar_json|safe }};
+
+// ── Calendar state ──
+const TODAY   = new Date();
+let curYear   = TODAY.getFullYear();
+let curMonth  = TODAY.getMonth();  // 0-indexed
+let curView   = 'month';
+let selectedDate = null;
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ── Build calendar ──
+function buildCalendar(){
+    document.getElementById('monthLabel').textContent = `${MONTHS[curMonth]} ${curYear}`;
+
+    if(curView === 'month') buildMonthView();
+    else if(curView === 'week') buildWeekView();
+    else buildDayView();
+}
+
+function buildMonthView(){
+    const header = document.getElementById('calDaysHeader');
+    const cells  = document.getElementById('calCells');
+    header.innerHTML = DAYS_SHORT.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+    cells.style.gridTemplateColumns = 'repeat(7,1fr)';
+
+    const firstDay = new Date(curYear, curMonth, 1).getDay();
+    const daysInMonth = new Date(curYear, curMonth+1, 0).getDate();
+    const prevDays = new Date(curYear, curMonth, 0).getDate();
+    const todayStr = `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}-${String(TODAY.getDate()).padStart(2,'0')}`;
+
+    let html = '';
+    // Prev month filler
+    for(let i=firstDay-1;i>=0;i--){
+        html += `<div class="cal-cell other-month"><div class="cal-date-num">${prevDays-i}</div></div>`;
+    }
+    // Current month
+    for(let d=1;d<=daysInMonth;d++){
+        const dateStr = `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = dateStr === todayStr;
+        const isSel   = dateStr === selectedDate;
+        const events  = ALL_EVENTS[dateStr] || [];
+        let dotsHtml  = '';
+        events.slice(0,3).forEach(e=>{
+            dotsHtml += `<div class="cal-dot" style="background:${e.color}20;color:${e.color};border-left:3px solid ${e.color}">${e.time} ${e.title}</div>`;
+        });
+        if(events.length > 3) dotsHtml += `<div class="cal-more">+${events.length-3} more</div>`;
+        html += `<div class="cal-cell${isToday?' today':''}${isSel?' selected':''}" onclick="selectDate('${dateStr}')"><div class="cal-date-num">${d}</div>${dotsHtml}</div>`;
+    }
+    // Next month filler
+    const totalCells = Math.ceil((firstDay + daysInMonth)/7)*7;
+    const trailing = totalCells - firstDay - daysInMonth;
+    for(let i=1;i<=trailing;i++){
+        html += `<div class="cal-cell other-month"><div class="cal-date-num">${i}</div></div>`;
+    }
+    cells.innerHTML = html;
+}
+
+function buildWeekView(){
+    const header = document.getElementById('calDaysHeader');
+    const cells  = document.getElementById('calCells');
+
+    // Find Monday of current week
+    const base = new Date(curYear, curMonth, 1);
+    // Use today's date as anchor for week view
+    const pivot = new Date(TODAY);
+    const dayOfWeek = pivot.getDay();
+    const monday = new Date(pivot);
+    monday.setDate(pivot.getDate() - dayOfWeek);
+
+    header.innerHTML = '';
+    cells.style.gridTemplateColumns = 'repeat(7,1fr)';
+    cells.style.minHeight = '200px';
+
+    const todayStr = fmtDate(TODAY);
+    let headerHtml='', cellHtml='';
+    for(let i=0;i<7;i++){
+        const d = new Date(monday);
+        d.setDate(monday.getDate()+i);
+        const ds = fmtDate(d);
+        const isToday = ds===todayStr;
+        headerHtml += `<div class="cal-day-name" style="${isToday?'color:#60a5fa;font-weight:800':''}">${DAYS_SHORT[i]}<br><span style="font-size:1rem;font-weight:700">${d.getDate()}</span></div>`;
+        const events = ALL_EVENTS[ds]||[];
+        let ev='';
+        events.forEach(e=>{
+            ev+=`<div class="cal-dot" style="background:${e.color}20;color:${e.color};border-left:3px solid ${e.color};margin-bottom:3px;cursor:pointer" onclick="openDrawer(${e.id})">${e.time}<br>${e.title}</div>`;
+        });
+        cellHtml += `<div class="cal-cell${isToday?' today':''}" style="min-height:120px" onclick="selectDate('${ds}')">${ev||'<div style="color:#334155;font-size:.7rem;padding-top:4px">—</div>'}</div>`;
+    }
+    header.innerHTML = headerHtml;
+    cells.innerHTML  = cellHtml;
+}
+
+function buildDayView(){
+    const header = document.getElementById('calDaysHeader');
+    const cells  = document.getElementById('calCells');
+    header.innerHTML = '';
+    cells.style.gridTemplateColumns = '1fr';
+
+    const ds = fmtDate(TODAY);
+    const events = ALL_EVENTS[ds]||[];
+    document.getElementById('monthLabel').textContent = `${TODAY.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}`;
+
+    if(!events.length){
+        cells.innerHTML = `<div style="text-align:center;padding:3rem;color:#64748b"><i class="fas fa-calendar-day" style="font-size:2rem;margin-bottom:1rem;display:block;opacity:.4"></i>No events today. Add one!</div>`;
+        return;
+    }
+
+    let html='';
+    events.forEach(e=>{
+        html+=`<div style="display:flex;gap:1rem;padding:1rem;border-radius:12px;background:rgba(${e.color.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',')},0.1);border-left:4px solid ${e.color};margin-bottom:.75rem;cursor:pointer" onclick="openDrawer(${e.id})">
+            <div style="font-weight:700;color:${e.color};min-width:60px">${e.time}</div>
+            <div><div style="font-weight:600">${e.title}</div><div style="font-size:.75rem;color:#64748b;margin-top:2px;text-transform:capitalize">${e.event_type.replace('_',' ')}</div></div>
+            <span class="status-chip s-${e.status}" style="margin-left:auto;align-self:flex-start">${e.status}</span>
+        </div>`;
+    });
+    cells.innerHTML = html;
+}
+
+function fmtDate(d){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function changeMonth(dir){
+    curMonth += dir;
+    if(curMonth > 11){curMonth=0; curYear++;}
+    if(curMonth < 0){curMonth=11; curYear--;}
+    buildCalendar();
+}
+
+function setView(v, btn){
+    curView = v;
+    document.querySelectorAll('.cal-view-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    buildCalendar();
+}
+
+function selectDate(ds){
+    selectedDate = selectedDate===ds ? null : ds;
+    buildCalendar();
+    // Pre-fill date in modal and open it
+    openCreateModal(ds);
+}
+
+// ── Modal ──
+function openCreateModal(prefillDate){
+    document.getElementById('editId').value = '';
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle" style="color:#3b82f6;margin-right:.5rem"></i>New Event';
+    document.getElementById('f_title').value = '';
+    document.getElementById('f_date').value  = prefillDate || '';
+    document.getElementById('f_time').value  = '';
+    document.getElementById('f_duration').value = '60';
+    document.getElementById('f_priority').value  = 'medium';
+    document.getElementById('f_reminder').value  = '30';
+    document.getElementById('f_linked').value    = '';
+    document.getElementById('f_description').value = '';
+    document.getElementById('f_notes').value       = '';
+    document.querySelector('input[name="evt_type"][value="mock_test"]').checked = true;
+    document.getElementById('eventModal').classList.add('open');
+}
+
+function openEditModal(id){
+    // Fetch from flat ALL_EVENTS by id
+    let ev = null;
+    Object.values(ALL_EVENTS).forEach(list => list.forEach(e=>{ if(e.id===id) ev=e; }));
+    if(!ev){ showToast('Event not found','error'); return; }
+
+    document.getElementById('editId').value = id;
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit" style="color:#60a5fa;margin-right:.5rem"></i>Edit Event';
+    document.getElementById('f_title').value = ev.title;
+    document.getElementById('f_date').value  = ev.date||'';
+    document.getElementById('f_time').value  = ev.time||'';
+    document.getElementById('f_duration').value  = ev.duration||60;
+    document.getElementById('f_priority').value   = ev.priority||'medium';
+    document.getElementById('f_reminder').value   = ev.reminder_minutes||30;
+    document.getElementById('f_description').value= ev.description||'';
+    document.getElementById('f_notes').value       = ev.notes||'';
+    const typeRadio = document.querySelector(`input[name="evt_type"][value="${ev.event_type}"]`);
+    if(typeRadio) typeRadio.checked=true;
+    document.getElementById('eventModal').classList.add('open');
+}
+
+function closeModal(){
+    document.getElementById('eventModal').classList.remove('open');
+}
+
+async function saveEvent(){
+    const editId = document.getElementById('editId').value;
+    const isEdit = !!editId;
+
+    const payload = {
+        title:            document.getElementById('f_title').value.trim(),
+        event_type:       document.querySelector('input[name="evt_type"]:checked').value,
+        date:             document.getElementById('f_date').value,
+        time:             document.getElementById('f_time').value,
+        duration:         document.getElementById('f_duration').value,
+        priority:         document.getElementById('f_priority').value,
+        reminder_minutes: document.getElementById('f_reminder').value,
+        linked_resource_id: document.getElementById('f_linked').value,
+        description:      document.getElementById('f_description').value.trim(),
+        notes:            document.getElementById('f_notes').value.trim(),
+    };
+
+    if(!payload.title||!payload.date||!payload.time){
+        showToast('Title, date and time are required','error'); return;
+    }
+
+    const url = isEdit ? `/schedule/update/${editId}` : '/schedule/create';
+    try{
+        const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        const data = await r.json();
+        if(data.success){
+            showToast(data.message,'success');
+            closeModal();
+            setTimeout(()=>location.reload(),600);
+        } else {
+            showToast(data.error||'Error saving event.','error');
+        }
+    } catch(e){ showToast('Network error','error'); }
+}
+
+// ── Status ──
+async function quickStatus(id, status){
+    try{
+        const r = await fetch(`/schedule/status/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});
+        const d = await r.json();
+        if(d.success){
+            showToast(`Marked as ${status}`,'success');
+            setTimeout(()=>location.reload(),500);
+        }
+    } catch(e){ showToast('Error','error'); }
+}
+
+// ── Delete ──
+async function deleteEvent(id){
+    if(!confirm('Delete this event?')) return;
+    try{
+        const r = await fetch(`/schedule/delete/${id}`,{method:'POST'});
+        const d = await r.json();
+        if(d.success){
+            showToast('Event deleted','info');
+            setTimeout(()=>location.reload(),500);
+        }
+    } catch(e){ showToast('Error','error'); }
+}
+
+// ── Filter table ──
+function filterEvents(filter, btn){
+    document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.event-row').forEach(row=>{
+        row.style.display = (filter==='all'||row.dataset.status===filter) ? '' : 'none';
+    });
+}
+
+// ── Drawer ──
+const DRAWER_DATA = {};
+{% for s in all_schedules %}
+DRAWER_DATA[{{ s.id }}] = {
+    id: {{ s.id }},
+    title: {{ s.title|tojson }},
+    event_type: {{ s.event_type|tojson }},
+    date: {{ s.formatted_date()|tojson }},
+    time: {{ s.time|tojson }},
+    duration: {{ s.duration }},
+    priority: {{ s.priority|tojson }},
+    status: {{ s.status|tojson }},
+    description: {{ (s.description or '')|tojson }},
+    notes: {{ (s.notes or '')|tojson }},
+    color: {{ s.event_color()|tojson }},
+    icon: {{ s.event_icon()|tojson }},
+    reminder: {{ s.reminder_minutes }},
+};
+{% endfor %}
+
+function openDrawer(id){
+    const e = DRAWER_DATA[id];
+    if(!e) return;
+
+    document.getElementById('drawerIcon').innerHTML    = `<i class="fas ${e.icon}" style="color:${e.color}"></i>`;
+    document.getElementById('drawerIcon').style.background = `${e.color}20`;
+    document.getElementById('drawerTitle').textContent = e.title;
+    document.getElementById('drawerType').textContent  = e.event_type.replace(/_/g,' ');
+
+    const body = document.getElementById('drawerBody');
+    body.innerHTML = `
+        <div class="detail-row"><div class="detail-icon"><i class="fas fa-calendar"></i></div><div><div class="detail-label">Date</div><div class="detail-value">${e.date}</div></div></div>
+        <div class="detail-row"><div class="detail-icon"><i class="fas fa-clock"></i></div><div><div class="detail-label">Time · Duration</div><div class="detail-value">${e.time} · ${e.duration} min</div></div></div>
+        <div class="detail-row"><div class="detail-icon"><i class="fas fa-flag"></i></div><div><div class="detail-label">Priority</div><div class="detail-value" style="text-transform:capitalize">${e.priority}</div></div></div>
+        <div class="detail-row"><div class="detail-icon"><i class="fas fa-info-circle"></i></div><div><div class="detail-label">Status</div><div class="detail-value"><span class="status-chip s-${e.status}">${e.status}</span></div></div></div>
+        <div class="detail-row"><div class="detail-icon"><i class="fas fa-bell"></i></div><div><div class="detail-label">Reminder</div><div class="detail-value">${e.reminder} min before</div></div></div>
+        ${e.description?`<hr class="detail-divider"><div class="detail-row"><div class="detail-icon"><i class="fas fa-align-left"></i></div><div><div class="detail-label">Description</div><div class="detail-value" style="color:#cbd5e1">${e.description}</div></div></div>`:''}
+        ${e.notes?`<div class="detail-row"><div class="detail-icon"><i class="fas fa-sticky-note"></i></div><div><div class="detail-label">Notes</div><div class="detail-value" style="color:#cbd5e1;white-space:pre-line">${e.notes}</div></div></div>`:''}
+    `;
+
+    document.getElementById('drawerFooter').innerHTML = `
+        <button class="drawer-btn db-done" onclick="quickStatus(${id},'completed')"><i class="fas fa-check"></i> Done</button>
+        <button class="drawer-btn db-edit" onclick="closeDrawer();openEditModal(${id})"><i class="fas fa-edit"></i> Edit</button>
+        <button class="drawer-btn db-del"  onclick="deleteEvent(${id})"><i class="fas fa-trash"></i> Delete</button>
+    `;
+
+    document.getElementById('detailDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').style.display = 'block';
+}
+
+function closeDrawer(){
+    document.getElementById('detailDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').style.display = 'none';
+}
+
+// ── Toast ──
+function showToast(msg, type='info'){
+    const t = document.getElementById('toast');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-times-circle':'fa-info-circle'}"></i>${msg}`;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── Browser Notification Reminder ──
+function scheduleReminders(){
+    if(!("Notification" in window)) return;
+    const upcoming = [];
+    Object.values(ALL_EVENTS).forEach(list=>list.forEach(e=>{
+        if(e.status==='scheduled') upcoming.push(e);
+    }));
+    upcoming.forEach(e=>{
+        try{
+            const dt = new Date(`${e.date}T${e.time}`);
+            const remind = (e.reminder_minutes||30)*60*1000;
+            const msUntil = dt - Date.now() - remind;
+            if(msUntil > 0 && msUntil < 24*60*60*1000){
+                setTimeout(()=>{
+                    if(Notification.permission==='granted'){
+                        new Notification(`Student Career Assistant Reminder`, {body:`"${e.title}" starts in ${e.reminder_minutes} min!`, icon:'/static/favicon.ico'});
+                    }
+                }, msUntil);
+            }
+        }catch(err){}
+    });
+}
+if("Notification" in window && Notification.permission === 'default'){
+    Notification.requestPermission().then(p=>{ if(p==='granted') scheduleReminders(); });
+} else if(Notification.permission==='granted'){
+    scheduleReminders();
+}
+
+// ── Init ──
+buildCalendar();
+</script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results — {{ room.room_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh; color: #e2e8f0;
+        }
+        .top-nav {
+            background: rgba(15,23,42,0.95); border-bottom: 1px solid rgba(249,115,22,0.2);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .nav-brand { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #f97316, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .nav-right { display: flex; gap: 12px; }
+        .nav-link { color: #94a3b8; text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
+        .nav-link:hover { color: #f97316; }
+        .container { max-width: 1150px; margin: 0 auto; padding: 32px 20px; }
+
+        /* Trophy Header */
+        .result-hero {
+            text-align: center; padding: 44px 20px 36px;
+            background: rgba(15,23,42,0.9); border-radius: 24px;
+            border: 1px solid rgba(249,115,22,0.2); margin-bottom: 28px;
+        }
+        .trophy-icon { font-size: 4rem; margin-bottom: 16px; }
+        .result-hero h1 {
+            font-size: 2.3rem; font-weight: 800;
+            background: linear-gradient(135deg, #f97316, #fbbf24);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
+        }
+        .result-hero p { color: #64748b; font-size: 1rem; margin-bottom: 20px; }
+        .topic-chip {
+            display: inline-block; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25);
+            color: #f97316; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;
+        }
+        .room-meta-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 14px; }
+        .meta-pill {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(30,58,95,0.4); padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; color: #94a3b8;
+        }
+        .meta-pill i { color: #f97316; }
+
+        /* Main Grid */
+        .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; margin-bottom: 28px; }
+
+        /* Panel */
+        .panel {
+            background: rgba(15,23,42,0.9); border-radius: 20px;
+            border: 1px solid rgba(249,115,22,0.12); overflow: hidden; margin-bottom: 20px;
+        }
+        .panel:last-child { margin-bottom: 0; }
+        .panel-head {
+            padding: 18px 24px; border-bottom: 1px solid rgba(249,115,22,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .panel-title { font-size: 1.05rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .panel-title i { color: #f97316; }
+        .panel-body { padding: 22px 24px; }
+
+        /* Score Hero */
+        .score-hero {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 60%, #dc2626 100%);
+            border-radius: 18px; padding: 30px; text-align: center; margin-bottom: 22px; position: relative; overflow: hidden;
+        }
+        .score-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
+        }
+        .score-num { font-size: 4.5rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 6px; }
+        .score-denom { font-size: 1.5rem; font-weight: 500; opacity: 0.7; }
+        .score-label { font-size: 1rem; color: rgba(255,255,255,0.85); margin-bottom: 14px; }
+        .grade-badge {
+            display: inline-block; background: rgba(255,255,255,0.2); color: #fff;
+            padding: 7px 22px; border-radius: 25px; font-size: 1.3rem; font-weight: 800; letter-spacing: 2px;
+        }
+
+        /* Score Breakdown */
+        .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+        .score-item {
+            background: rgba(30,58,95,0.4); border-radius: 14px; padding: 16px;
+            text-align: center; border: 1px solid rgba(249,115,22,0.08);
+        }
+        .si-val { font-size: 1.8rem; font-weight: 700; color: #f97316; margin-bottom: 4px; }
+        .si-lbl { font-size: 0.76rem; color: #64748b; }
+
+        /* Progress Bar Scores */
+        .score-bar-row { margin-bottom: 14px; }
+        .sb-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .sb-name { font-size: 0.82rem; color: #94a3b8; }
+        .sb-val { font-size: 0.82rem; font-weight: 600; color: #f97316; }
+        .sb-track { background: rgba(30,58,95,0.5); border-radius: 4px; height: 6px; overflow: hidden; }
+        .sb-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #f97316, #fbbf24); transition: width 1s ease; }
+
+        /* Feedback */
+        .feedback-text { color: #e2e8f0; font-size: 0.9rem; line-height: 1.7; margin-bottom: 18px; padding: 16px; background: rgba(30,58,95,0.3); border-radius: 12px; border-left: 4px solid #f97316; }
+        .fb-section { margin-bottom: 16px; }
+        .fb-title { font-size: 0.82rem; font-weight: 700; color: #f97316; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .fb-item {
+            display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px;
+            background: rgba(34,197,94,0.07); border-radius: 8px; margin-bottom: 6px;
+            border-left: 3px solid #22c55e; font-size: 0.84rem; color: #e2e8f0; line-height: 1.5;
+        }
+        .fb-item.improve { background: rgba(251,191,36,0.07); border-left-color: #fbbf24; }
+        .fb-item i { flex-shrink: 0; margin-top: 2px; }
+
+        /* Participants Comparison */
+        .p-compare-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(30,58,95,0.3); border-radius: 12px; padding: 13px 16px;
+            margin-bottom: 10px; border: 1px solid rgba(249,115,22,0.06);
+        }
+        .p-compare-item.me { border-color: rgba(249,115,22,0.3); background: rgba(249,115,22,0.07); }
+        .pci-left { display: flex; align-items: center; gap: 12px; }
+        .pci-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: white;
+        }
+        .pci-avatar.me-av { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .pci-name { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; }
+        .pci-role { font-size: 0.74rem; color: #475569; }
+
+        /* Messages Review */
+        .msg-review {
+            background: rgba(30,58,95,0.3); border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 12px; border-left: 4px solid rgba(249,115,22,0.4);
+        }
+        .msg-review.mine { border-left-color: #22c55e; background: rgba(34,197,94,0.06); }
+        .mr-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .mr-author { font-size: 0.76rem; font-weight: 700; color: #94a3b8; }
+        .mr-time { font-size: 0.7rem; color: #334155; }
+        .mr-content { font-size: 0.85rem; color: #e2e8f0; line-height: 1.5; }
+
+        /* Action Buttons */
+        .action-row { display: flex; gap: 14px; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px;
+            border-radius: 12px; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; border: none; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #f97316, #ea580c); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(249,115,22,0.35); }
+        .btn-outline { background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.25); }
+        .btn-outline:hover { background: rgba(249,115,22,0.2); }
+        .btn-ghost { background: rgba(30,58,95,0.4); color: #94a3b8; border: 1px solid rgba(249,115,22,0.1); }
+        .btn-ghost:hover { color: #e2e8f0; }
+
+        @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) {
+            .score-grid { grid-template-columns: 1fr 1fr; }
+            .action-row { flex-direction: column; }
+            .result-hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="/dashboard" class="nav-brand"><i class="fas fa-route"></i> Student Career Assistant</a>
+        <div class="nav-right">
+            <a href="/gd-room-history" class="nav-link"><i class="fas fa-history"></i> GD History</a>
+            <a href="/group-discussion" class="nav-link"><i class="fas fa-comments"></i> GD Arena</a>
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero -->
+        <div class="result-hero">
+            <div class="trophy-icon">🏆</div>
+            <h1>Discussion Complete!</h1>
+            <p>Great job participating in this group discussion. Here's your detailed AI evaluation.</p>
+            <div class="topic-chip"><i class="fas fa-lightbulb"></i> {{ topic.title }}</div>
+            <div class="room-meta-row">
+                <div class="meta-pill"><i class="fas fa-hashtag"></i> Room {{ room.room_id }}</div>
+                <div class="meta-pill"><i class="fas fa-users"></i> {{ all_participants|length }} participants</div>
+                <div class="meta-pill"><i class="fas fa-clock"></i> {{ room.duration_minutes() }} min</div>
+                <div class="meta-pill"><i class="fas fa-tag"></i> {{ topic.topic_type.replace('_',' ').title() }}</div>
+                <div class="meta-pill"><i class="fas fa-star"></i> {{ topic.difficulty_level.title() }}</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left: Evaluation -->
+            <div>
+                {% if evaluation %}
+                <!-- Score Card -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-chart-bar"></i> Your Performance Score</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="score-hero">
+                            <div class="score-num">{{ "%.1f"|format(evaluation.overall_score) }}<span class="score-denom">/10</span></div>
+                            <div class="score-label">Overall Score</div>
+                            <span class="grade-badge">{{ evaluation.grade_letter() }}</span>
+                        </div>
+
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <div class="si-val">{{ "%.1f"|format(evaluation.communication_score) }}</div>
+                                <div class="si-lbl">Communication</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="si-val">{{ "%.1f"|format(evaluation.content_quality) }}</div>
+                                <div class="si-lbl">Content Quality</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="si-val">{{ "%.1f"|format(evaluation.participation_level) }}</div>
+                                <div class="si-lbl">Participation</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="si-val">{{ "%.1f"|format(evaluation.leadership_shown) }}</div>
+                                <div class="si-lbl">Leadership</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bars -->
+                        {% set bars = [
+                            ('Communication', evaluation.communication_score),
+                            ('Content Quality', evaluation.content_quality),
+                            ('Participation', evaluation.participation_level),
+                            ('Leadership', evaluation.leadership_shown)
+                        ] %}
+                        {% for name, val in bars %}
+                        <div class="score-bar-row">
+                            <div class="sb-header">
+                                <span class="sb-name">{{ name }}</span>
+                                <span class="sb-val">{{ "%.1f"|format(val) }}/10</span>
+                            </div>
+                            <div class="sb-track"><div class="sb-fill" style="width: {{ (val/10*100)|int }}%"></div></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-robot"></i> AI Feedback</div>
+                    </div>
+                    <div class="panel-body">
+                        {% if evaluation.feedback %}
+                        <div class="feedback-text">{{ evaluation.feedback }}</div>
+                        {% endif %}
+                        {% if evaluation.strengths %}
+                        <div class="fb-section">
+                            <div class="fb-title"><i class="fas fa-check-circle" style="color:#22c55e"></i> Strengths</div>
+                            {% for line in evaluation.strengths.split('\n') %}
+                            {% if line.strip() %}
+                            <div class="fb-item"><i class="fas fa-star" style="color:#22c55e; font-size:0.75rem;"></i> {{ line.strip().lstrip('•-*0123456789. ') }}</div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if evaluation.areas_for_improvement %}
+                        <div class="fb-section">
+                            <div class="fb-title"><i class="fas fa-arrow-up" style="color:#fbbf24"></i> Areas to Improve</div>
+                            {% for line in evaluation.areas_for_improvement.split('\n') %}
+                            {% if line.strip() %}
+                            <div class="fb-item improve"><i class="fas fa-lightbulb" style="color:#fbbf24; font-size:0.75rem;"></i> {{ line.strip().lstrip('•-*0123456789. ') }}</div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Your Stats -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-chart-pie"></i> Your Participation Stats</div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="score-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="score-item">
+                                <div class="si-val">{{ evaluation.total_messages }}</div>
+                                <div class="si-lbl">Messages Sent</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="si-val">{{ evaluation.total_words }}</div>
+                                <div class="si-lbl">Words Spoken</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="si-val">{{ "%.0f"|format(evaluation.speaking_time_percentage) }}%</div>
+                                <div class="si-lbl">Speaking Share</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="panel">
+                    <div class="panel-body" style="text-align:center; padding:40px; color:#475569;">
+                        <i class="fas fa-hourglass-half" style="font-size:2.5rem; margin-bottom:14px; opacity:0.4; display:block;"></i>
+                        <h3>Evaluation being generated...</h3>
+                        <p style="margin-top:8px; font-size:0.9rem;">Your AI evaluation will appear here shortly. Please refresh in a moment.</p>
+                        <button onclick="location.reload()" style="margin-top:20px; background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.3); padding:10px 22px; border-radius:10px; cursor:pointer; font-weight:600;">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Transcript -->
+                {% if messages %}
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-scroll"></i> Discussion Transcript</div>
+                        <span style="color:#64748b; font-size:0.8rem;">{{ messages|length }} messages</span>
+                    </div>
+                    <div class="panel-body" style="max-height: 380px; overflow-y: auto;">
+                        {% for msg in messages %}
+                        <div class="msg-review {% if msg.user_id == user.id %}mine{% endif %}">
+                            <div class="mr-header">
+                                <span class="mr-author">
+                                    {% if msg.message_type == 'ai_feedback' %}
+                                        <i class="fas fa-robot"></i> AI Coach
+                                    {% else %}
+                                        {{ msg.user.name }}{% if msg.user_id == user.id %} (you){% endif %}
+                                    {% endif %}
+                                </span>
+                                <span class="mr-time">{{ msg.formatted_time() }}</span>
+                            </div>
+                            <div class="mr-content">{{ msg.content }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Sidebar -->
+            <div>
+                <!-- All Participants -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-users"></i> Participants</div>
+                    </div>
+                    <div class="panel-body">
+                        {% for p in all_participants %}
+                        {% set p_eval = p.user.gd_evaluations | selectattr('room_id', 'equalto', room.room_id) | first if p.user.gd_evaluations else none %}
+                        <div class="p-compare-item {% if p.user_id == user.id %}me{% endif %}">
+                            <div class="pci-left">
+                                <div class="pci-avatar {% if p.user_id == user.id %}me-av{% endif %}">{{ p.user.name[0].upper() }}</div>
+                                <div>
+                                    <div class="pci-name">{{ p.user.name }}{% if p.user_id == user.id %} <span style="font-size:0.68rem; color:#22c55e;">(you)</span>{% endif %}</div>
+                                    <div class="pci-role">{{ p.role.title() }} · {{ p.message_count }} messages</div>
+                                </div>
+                            </div>
+                            {% if p_eval %}
+                            <div style="text-align:right;">
+                                <div style="font-size:1.1rem; font-weight:700; color:#f97316;">{{ "%.1f"|format(p_eval.overall_score) }}</div>
+                                <div style="font-size:0.7rem; color:#475569;">{{ p_eval.grade_letter() }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Room Summary -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-info-circle"></i> Session Summary</div>
+                    </div>
+                    <div class="panel-body">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(249,115,22,0.07);">
+                                <span style="color:#64748b; font-size:0.82rem;">Room Name</span>
+                                <span style="color:#e2e8f0; font-size:0.82rem; font-weight:600;">{{ room.room_name }}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(249,115,22,0.07);">
+                                <span style="color:#64748b; font-size:0.82rem;">Host</span>
+                                <span style="color:#e2e8f0; font-size:0.82rem; font-weight:600;">{{ room.host.name }}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(249,115,22,0.07);">
+                                <span style="color:#64748b; font-size:0.82rem;">Duration</span>
+                                <span style="color:#f97316; font-size:0.82rem; font-weight:600;">{{ room.duration_minutes() }} min</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(249,115,22,0.07);">
+                                <span style="color:#64748b; font-size:0.82rem;">Mode</span>
+                                <span style="color:#e2e8f0; font-size:0.82rem; font-weight:600;">{{ room.discussion_mode.replace('_',' ').title() }}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(249,115,22,0.07);">
+                                <span style="color:#64748b; font-size:0.82rem;">Total Messages</span>
+                                <span style="color:#e2e8f0; font-size:0.82rem; font-weight:600;">{{ messages|length }}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:9px 0;">
+                                <span style="color:#64748b; font-size:0.82rem;">Completed</span>
+                                <span style="color:#22c55e; font-size:0.82rem; font-weight:600;">{{ room.formatted_date() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title"><i class="fas fa-bolt"></i> What's Next?</div>
+                    </div>
+                    <div class="panel-body">
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <a href="/group-discussion" class="btn btn-primary"><i class="fas fa-plus"></i> New Discussion</a>
+                            <a href="/gd-room-history" class="btn btn-outline"><i class="fas fa-history"></i> View All History</a>
+                            <a href="/dashboard" class="btn btn-ghost"><i class="fas fa-home"></i> Dashboard</a>
+                            <a href="/generate-roadmap" class="btn btn-ghost"><i class="fas fa-map"></i> Improve with Roadmap</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

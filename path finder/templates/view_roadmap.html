@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ roadmap.goal }} - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; animation-delay: 6s; width: 25px; height: 25px; }
+        .bg-animation span:nth-child(5) { left: 70%; animation-delay: 8s; }
+        .bg-animation span:nth-child(6) { left: 85%; animation-delay: 10s; width: 35px; height: 35px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Back Button */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Roadmap Header */
+        .roadmap-header {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .roadmap-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .roadmap-title i {
+            color: #3b82f6;
+        }
+
+        .roadmap-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .meta-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .meta-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+        }
+
+        .meta-info {
+            flex: 1;
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        /* Skills Tags */
+        .skills-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .skills-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-tag {
+            padding: 0.4rem 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Roadmap Content */
+        .roadmap-content {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-title i {
+            color: #3b82f6;
+        }
+
+        .roadmap-text {
+            color: #cbd5e1;
+            line-height: 1.9;
+            font-size: 1rem;
+        }
+
+        /* Markdown rendered styles */
+        .roadmap-text h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .roadmap-text h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #60a5fa;
+            margin: 2rem 0 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .roadmap-text h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.4rem;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .roadmap-text h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #93c5fd;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        .roadmap-text h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #bfdbfe;
+            margin: 1rem 0 0.4rem;
+        }
+
+        .roadmap-text p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .roadmap-text ul {
+            list-style: none;
+            margin: 0.5rem 0 1.25rem 0;
+            padding: 0;
+        }
+
+        .roadmap-text ul li {
+            padding: 0.4rem 0 0.4rem 1.5rem;
+            position: relative;
+            color: #cbd5e1;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.07);
+        }
+
+        .roadmap-text ul li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-size: 0.6rem;
+            top: 0.65rem;
+        }
+
+        .roadmap-text ol {
+            margin: 0.5rem 0 1.25rem 1.5rem;
+            padding: 0;
+        }
+
+        .roadmap-text ol li {
+            padding: 0.35rem 0;
+            color: #cbd5e1;
+        }
+
+        .roadmap-text strong {
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        .roadmap-text em {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .roadmap-text hr {
+            border: none;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            margin: 2rem 0;
+        }
+
+        .roadmap-text blockquote {
+            border-left: 4px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            padding: 1rem 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1.25rem 0;
+            color: #94a3b8;
+        }
+
+        .roadmap-text code {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .roadmap-text pre {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin: 1.25rem 0;
+        }
+
+        .roadmap-text pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+        }
+
+        /* Week highlight cards — auto-applied via JS */
+        .week-card {
+            background: rgba(59, 130, 246, 0.06);
+            border: 1px solid rgba(59, 130, 246, 0.18);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .secondary-btn {
+            background: rgba(30, 41, 59, 0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .secondary-btn:hover {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .danger-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .danger-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .roadmap-title {
+                font-size: 1.5rem;
+            }
+
+            .action-bar {
+                flex-wrap: wrap;
+            }
+
+            .action-btn {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="/history" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="/performance" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Performance
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <a href="/history" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to History
+            </a>
+
+            <!-- Roadmap Header -->
+            <div class="roadmap-header">
+                <h1 class="roadmap-title">
+                    <i class="fas fa-bullseye"></i>
+                    {{ roadmap.goal }}
+                </h1>
+
+                <div class="roadmap-meta-grid">
+                    <div class="meta-card">
+                        <div class="meta-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="meta-info">
+                            <div class="meta-label">Branch</div>
+                            <div class="meta-value">{{ roadmap.branch or 'General' }}</div>
+                        </div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="meta-info">
+                            <div class="meta-label">Generated On</div>
+                            <div class="meta-value">{{ roadmap.formatted_date() }}</div>
+                        </div>
+                    </div>
+                    {% if roadmap.weakness %}
+                    <div class="meta-card">
+                        <div class="meta-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="meta-info">
+                            <div class="meta-label">Areas to Improve</div>
+                            <div class="meta-value">{{ roadmap.weakness[:50] }}{% if roadmap.weakness|length > 50 %}...{% endif %}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="skills-section">
+                    <div class="skills-label">Skills Used in Generation</div>
+                    <div class="skills-list">
+                        {% for skill in roadmap.skills.split(',') %}
+                        <span class="skill-tag">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roadmap Content -->
+            <div class="roadmap-content">
+                <h2 class="content-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Your Personalized Roadmap
+                </h2>
+                <div id="roadmapContent" class="roadmap-text"></div>
+
+                <div class="action-bar">
+                    <a href="/generate-roadmap" class="action-btn primary-btn">
+                        <i class="fas fa-plus"></i>
+                        Generate New Roadmap
+                    </a>
+                    <button onclick="printRoadmap()" class="action-btn secondary-btn">
+                        <i class="fas fa-print"></i>
+                        Print
+                    </button>
+                    <button onclick="copyRoadmap()" class="action-btn secondary-btn">
+                        <i class="fas fa-copy"></i>
+                        Copy
+                    </button>
+                    <form action="/roadmap/delete/{{ roadmap.id }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this roadmap?');">
+                        <button type="submit" class="action-btn danger-btn">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Raw roadmap text from server
+        const rawText = {{ roadmap.roadmap_text | tojson }};
+
+        // Configure marked for clean rendering
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // Render markdown into the container
+        document.getElementById('roadmapContent').innerHTML = marked.parse(rawText);
+
+        // Wrap h2 sections (Week blocks) in styled cards
+        const container = document.getElementById('roadmapContent');
+        const children = Array.from(container.childNodes);
+        let currentCard = null;
+
+        children.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'H2') {
+                currentCard = document.createElement('div');
+                currentCard.className = 'week-card';
+                node.parentNode.insertBefore(currentCard, node);
+                currentCard.appendChild(node);
+            } else if (currentCard) {
+                currentCard.appendChild(node);
+                if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'HR') {
+                    currentCard = null;
+                }
+            }
+        });
+
+        function printRoadmap() {
+            window.print();
+        }
+
+        function copyRoadmap() {
+            navigator.clipboard.writeText(rawText).then(() => {
+                const btn = event.target.closest('.action-btn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => { btn.innerHTML = orig; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

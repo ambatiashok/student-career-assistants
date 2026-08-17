@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; animation-delay: 6s; width: 25px; height: 25px; }
+        .bg-animation span:nth-child(5) { left: 70%; animation-delay: 8s; }
+        .bg-animation span:nth-child(6) { left: 85%; animation-delay: 10s; width: 35px; height: 35px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Success Alert */
+        .success-alert {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .success-alert i {
+            color: #22c55e;
+            font-size: 1.5rem;
+        }
+
+        .success-alert span {
+            color: #86efac;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Profile Card */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Profile Sidebar */
+        .profile-sidebar {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            text-align: center;
+            height: fit-content;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .avatar-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            border: 3px solid #1e293b;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+
+        /* Profile Form */
+        .profile-form-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label i {
+            margin-right: 8px;
+            color: #3b82f6;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #64748b;
+        }
+
+        .form-group select option {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Profile Completion */
+        .completion-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .completion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .completion-title {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .completion-percent {
+            color: #3b82f6;
+            font-weight: 700;
+        }
+
+        .completion-bar {
+            height: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .completion-tips {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .tip-item i {
+            width: 16px;
+        }
+
+        .tip-item.completed i {
+            color: #22c55e;
+        }
+
+        .tip-item.pending i {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/profile" class="nav-link active">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="/mock-test" class="nav-link">
+                    <i class="fas fa-brain"></i>
+                    Mock Tests
+                </a>
+                <a href="/history" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="/performance" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Performance
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">My Profile</h1>
+                <p class="page-subtitle">Manage your information to get personalized roadmaps</p>
+            </div>
+
+            {% if success %}
+            <div class="success-alert">
+                <i class="fas fa-check-circle"></i>
+                <span>Profile updated successfully! Your future roadmaps will be more personalized.</span>
+            </div>
+            {% endif %}
+
+            <div class="profile-grid">
+                <!-- Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="avatar-container">
+                        <div class="avatar">{{ user.name[0] if user.name else 'U' }}</div>
+                        <div class="avatar-badge">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <h2 class="profile-name">{{ user.name or 'Student' }}</h2>
+                    <p class="profile-email">{{ user.email }}</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ total_roadmaps }}</div>
+                            <div class="stat-label">Roadmaps</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ user.year or '1st' }}</div>
+                            <div class="stat-label">Year</div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Completion -->
+                    <div class="completion-card">
+                        <div class="completion-header">
+                            <span class="completion-title">Profile Completion</span>
+                            <span class="completion-percent">
+                                {% set completion = 0 %}
+                                {% if user.name %}{% set completion = completion + 20 %}{% endif %}
+                                {% if user.skills %}{% set completion = completion + 25 %}{% endif %}
+                                {% if user.career_goal %}{% set completion = completion + 25 %}{% endif %}
+                                {% if user.branch %}{% set completion = completion + 15 %}{% endif %}
+                                {% if user.year %}{% set completion = completion + 15 %}{% endif %}
+                                {{ completion }}%
+                            </span>
+                        </div>
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: {{ completion }}%"></div>
+                        </div>
+                        <div class="completion-tips">
+                            <div class="tip-item {{ 'completed' if user.name else 'pending' }}">
+                                <i class="fas {{ 'fa-check-circle' if user.name else 'fa-circle' }}"></i>
+                                Add your name
+                            </div>
+                            <div class="tip-item {{ 'completed' if user.skills else 'pending' }}">
+                                <i class="fas {{ 'fa-check-circle' if user.skills else 'fa-circle' }}"></i>
+                                List your skills
+                            </div>
+                            <div class="tip-item {{ 'completed' if user.career_goal else 'pending' }}">
+                                <i class="fas {{ 'fa-check-circle' if user.career_goal else 'fa-circle' }}"></i>
+                                Set career goal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="profile-form-card">
+                    <div class="form-header">
+                        <h3 class="form-title">Edit Profile</h3>
+                        <p class="form-subtitle">Update your information for better personalization</p>
+                    </div>
+
+                    <form method="POST" action="/profile">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i>Full Name</label>
+                                <input type="text" name="name" value="{{ user.name or '' }}" placeholder="Enter your full name">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i>Branch</label>
+                                <select name="branch">
+                                    <option value="">Select Branch</option>
+                                    <option value="Computer Science" {{ 'selected' if user.branch == 'Computer Science' else '' }}>Computer Science</option>
+                                    <option value="Information Technology" {{ 'selected' if user.branch == 'Information Technology' else '' }}>Information Technology</option>
+                                    <option value="Electronics" {{ 'selected' if user.branch == 'Electronics' else '' }}>Electronics</option>
+                                    <option value="Mechanical" {{ 'selected' if user.branch == 'Mechanical' else '' }}>Mechanical</option>
+                                    <option value="Civil" {{ 'selected' if user.branch == 'Civil' else '' }}>Civil</option>
+                                    <option value="Electrical" {{ 'selected' if user.branch == 'Electrical' else '' }}>Electrical</option>
+                                    <option value="Other" {{ 'selected' if user.branch == 'Other' else '' }}>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar-alt"></i>Year</label>
+                                <select name="year">
+                                    <option value="">Select Year</option>
+                                    <option value="1st Year" {{ 'selected' if user.year == '1st Year' else '' }}>1st Year</option>
+                                    <option value="2nd Year" {{ 'selected' if user.year == '2nd Year' else '' }}>2nd Year</option>
+                                    <option value="3rd Year" {{ 'selected' if user.year == '3rd Year' else '' }}>3rd Year</option>
+                                    <option value="4th Year" {{ 'selected' if user.year == '4th Year' else '' }}>4th Year</option>
+                                    <option value="Graduate" {{ 'selected' if user.year == 'Graduate' else '' }}>Graduate</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-bullseye"></i>Career Goal</label>
+                                <input type="text" name="career_goal" value="{{ user.career_goal or '' }}" placeholder="e.g., Full Stack Developer">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label><i class="fas fa-code"></i>Skills</label>
+                                <textarea name="skills" placeholder="e.g., Python, JavaScript, HTML, CSS, React">{{ user.skills or '' }}</textarea>
+                                <p class="form-hint">Separate skills with commas for better analysis</p>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label><i class="fas fa-exclamation-triangle"></i>Areas to Improve</label>
+                                <textarea name="weakness" placeholder="e.g., Data Structures, System Design, Communication">{{ user.weakness or '' }}</textarea>
+                                <p class="form-hint">Being honest helps create better roadmaps</p>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

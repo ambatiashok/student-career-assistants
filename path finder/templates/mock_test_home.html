@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Tests - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; animation-delay: 6s; width: 25px; height: 25px; }
+        .bg-animation span:nth-child(5) { left: 70%; animation-delay: 8s; }
+        .bg-animation span:nth-child(6) { left: 85%; animation-delay: 10s; width: 35px; height: 35px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #60a5fa;
+            margin-top: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Test Categories */
+        .test-categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .aptitude-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .technical-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .verbal-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .core-icon {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .hr-icon {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .gk-icon {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .category-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .category-description {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .category-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .category-features li i {
+            color: #22c55e;
+            width: 16px;
+        }
+
+        .start-test-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .start-test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .aptitude-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .aptitude-btn:hover {
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        .technical-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        .technical-btn:hover {
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        .verbal-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .verbal-btn:hover {
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
+        }
+        .core-btn {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+        .core-btn:hover {
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4);
+        }
+        .hr-btn {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+        .hr-btn:hover {
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+        }
+        .gk-btn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+        .gk-btn:hover {
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+        }
+        .custom-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+        .custom-btn:hover {
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Custom Topic Form */
+        .custom-topic-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .custom-topic-input {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid rgba(99,102,241,0.35);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .custom-topic-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+        }
+        .custom-topic-input::placeholder { color: #475569; }
+        .custom-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .custom-form-select {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.88rem;
+            transition: border-color 0.3s;
+        }
+        .custom-form-select:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        .custom-form-select option { background: #1e293b; }
+        .custom-form-label {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .custom-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .custom-category { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+
+        /* Recent Results */
+        .recent-results {
+            margin-top: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .result-item {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-category {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .aptitude-category    { background: rgba(16,185,129,0.2);  color: #10b981; }
+        .technical-category   { background: rgba(139,92,246,0.2);  color: #8b5cf6; }
+        .verbal-category      { background: rgba(245,158,11,0.2);  color: #f59e0b; }
+        .core_engineering-category { background: rgba(6,182,212,0.2);   color: #06b6d4; }
+        .hr_interview-category     { background: rgba(236,72,153,0.2);  color: #ec4899; }
+        .general_knowledge-category{ background: rgba(249,115,22,0.2);  color: #f97316; }
+
+        .result-details {
+            color: #cbd5e1;
+        }
+
+        .result-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .view-history-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-history-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        @media (max-width: 768px) {
+            .test-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="/mock-test" class="nav-link active">
+                    <i class="fas fa-brain"></i>
+                    Mock Tests
+                </a>
+                <a href="/group-discussion" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    Group Discussion
+                </a>
+                <a href="/history" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="/performance" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Performance
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">AI Mock Tests</h1>
+                <p class="page-subtitle">Practice with AI-generated questions tailored to your level</p>
+                <div class="ai-badge">
+                    <i class="fas fa-robot"></i>
+                    <span>Powered by Advanced AI</span>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-brain"></i></div>
+                    <div class="stat-value">{{ aptitude_tests }}</div>
+                    <div class="stat-label">Aptitude Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fas fa-code"></i></div>
+                    <div class="stat-value">{{ technical_tests }}</div>
+                    <div class="stat-label">Technical Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-pen-nib"></i></div>
+                    <div class="stat-value">{{ verbal_tests }}</div>
+                    <div class="stat-label">Verbal Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-microchip"></i></div>
+                    <div class="stat-value">{{ core_tests }}</div>
+                    <div class="stat-label">Core Engg. Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#ec4899,#db2777)"><i class="fas fa-handshake"></i></div>
+                    <div class="stat-value">{{ hr_tests }}</div>
+                    <div class="stat-label">HR Interview Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#f97316,#ea580c)"><i class="fas fa-globe"></i></div>
+                    <div class="stat-value">{{ gk_tests }}</div>
+                    <div class="stat-label">GK Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg,#6366f1,#4f46e5)"><i class="fas fa-lightbulb"></i></div>
+                    <div class="stat-value">{{ custom_tests }}</div>
+                    <div class="stat-label">Custom Tests</div>
+                </div>
+            </div>
+
+            <!-- Test Categories -->
+            <div class="test-categories">
+                <!-- Aptitude Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon aptitude-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h3 class="category-title">Aptitude Test</h3>
+                            <p class="category-subtitle">Logical & Quantitative Reasoning</p>
+                        </div>
+                    </div>
+                    
+                    <p class="category-description">
+                        Test your logical reasoning, quantitative aptitude, and problem-solving skills with AI-generated questions.
+                    </p>
+                    
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Logical Reasoning</li>
+                        <li><i class="fas fa-check"></i> Quantitative Aptitude</li>
+                        <li><i class="fas fa-check"></i> Data Interpretation</li>
+                        <li><i class="fas fa-check"></i> Verbal Ability</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    
+                    <a href="/start-test/aptitude" class="start-test-btn aptitude-btn">
+                        <i class="fas fa-play"></i>
+                        Start Aptitude Test
+                    </a>
+                </div>
+
+                <!-- Technical Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon technical-icon"><i class="fas fa-code"></i></div>
+                        <div>
+                            <h3 class="category-title">Technical Test</h3>
+                            <p class="category-subtitle">Programming & CS Fundamentals</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Evaluate your programming knowledge and computer science fundamentals with dynamic technical questions.</p>
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Programming Concepts</li>
+                        <li><i class="fas fa-check"></i> Data Structures</li>
+                        <li><i class="fas fa-check"></i> Algorithms</li>
+                        <li><i class="fas fa-check"></i> Software Engineering</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    <a href="/start-test/technical" class="start-test-btn technical-btn">
+                        <i class="fas fa-play"></i> Start Technical Test
+                    </a>
+                </div>
+
+                <!-- Verbal Ability Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon verbal-icon"><i class="fas fa-pen-nib"></i></div>
+                        <div>
+                            <h3 class="category-title">Verbal Ability</h3>
+                            <p class="category-subtitle">English Language & Communication</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Sharpen your English language skills with questions on vocabulary, grammar, comprehension and sentence correction — essential for placements.</p>
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Synonyms & Antonyms</li>
+                        <li><i class="fas fa-check"></i> Sentence Correction</li>
+                        <li><i class="fas fa-check"></i> Reading Comprehension</li>
+                        <li><i class="fas fa-check"></i> Idioms & Phrases</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    <a href="/start-test/verbal" class="start-test-btn verbal-btn">
+                        <i class="fas fa-play"></i> Start Verbal Test
+                    </a>
+                </div>
+
+                <!-- Core Engineering Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon core-icon"><i class="fas fa-microchip"></i></div>
+                        <div>
+                            <h3 class="category-title">Core Engineering</h3>
+                            <p class="category-subtitle">OS, DBMS, Networks & Architecture</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Test your deep knowledge of core CS subjects — Operating Systems, DBMS, Computer Networks, OOP and Software Engineering.</p>
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Operating Systems</li>
+                        <li><i class="fas fa-check"></i> Database Management (DBMS)</li>
+                        <li><i class="fas fa-check"></i> Computer Networks</li>
+                        <li><i class="fas fa-check"></i> OOP & Architecture</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    <a href="/start-test/core_engineering" class="start-test-btn core-btn">
+                        <i class="fas fa-play"></i> Start Core Engg. Test
+                    </a>
+                </div>
+
+                <!-- HR Interview Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon hr-icon"><i class="fas fa-handshake"></i></div>
+                        <div>
+                            <h3 class="category-title">HR Interview</h3>
+                            <p class="category-subtitle">Behavioral & Soft Skills</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Prepare for HR rounds with behavioral and situational questions that test your professionalism, teamwork, leadership and communication.</p>
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Behavioral Scenarios</li>
+                        <li><i class="fas fa-check"></i> Teamwork & Leadership</li>
+                        <li><i class="fas fa-check"></i> Situational Judgment</li>
+                        <li><i class="fas fa-check"></i> Professional Ethics</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    <a href="/start-test/hr_interview" class="start-test-btn hr-btn">
+                        <i class="fas fa-play"></i> Start HR Interview Test
+                    </a>
+                </div>
+
+                <!-- General Knowledge Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon gk-icon"><i class="fas fa-globe"></i></div>
+                        <div>
+                            <h3 class="category-title">General Knowledge</h3>
+                            <p class="category-subtitle">Current Affairs & GK</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Ace the GK rounds in campus placements and competitive exams with questions on current affairs, science, economy, geography and more.</p>
+                    <ul class="category-features">
+                        <li><i class="fas fa-check"></i> Current Affairs</li>
+                        <li><i class="fas fa-check"></i> Science & Technology</li>
+                        <li><i class="fas fa-check"></i> Indian Economy</li>
+                        <li><i class="fas fa-check"></i> World Geography & History</li>
+                        <li><i class="fas fa-check"></i> 5 AI-Generated Questions</li>
+                        <li><i class="fas fa-check"></i> 10 Minutes Duration</li>
+                    </ul>
+                    <a href="/start-test/general_knowledge" class="start-test-btn gk-btn">
+                        <i class="fas fa-play"></i> Start GK Test
+                    </a>
+                </div>
+
+                <!-- Custom Topic Test -->
+                <div class="category-card">
+                    <div class="category-header">
+                        <div class="category-icon custom-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div>
+                            <h3 class="category-title">Custom Topic</h3>
+                            <p class="category-subtitle">Any Subject You Choose</p>
+                        </div>
+                    </div>
+                    <p class="category-description">Enter any topic or concept — Python OOP, React Hooks, Binary Trees, Machine Learning, DBMS, Networking, or anything else — and get a tailored MCQ test instantly.</p>
+
+                    <form class="custom-topic-form" action="/start-custom-test" method="POST">
+                        <div>
+                            <div class="custom-form-label">Topic / Concept</div>
+                            <input type="text" name="topic" class="custom-topic-input"
+                                   placeholder="e.g. Python OOP, Binary Trees, React Hooks…"
+                                   required maxlength="120">
+                        </div>
+                        <div class="custom-form-row">
+                            <div>
+                                <div class="custom-form-label">Difficulty</div>
+                                <select name="difficulty" class="custom-form-select">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="custom-form-label">No. of Questions</div>
+                                <select name="num_questions" class="custom-form-select">
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="start-test-btn custom-btn">
+                            <i class="fas fa-magic"></i>
+                            Generate &amp; Start Test
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Results -->
+            {% if recent_results %}
+            <div class="recent-results">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Recent Test Results
+                </h2>
+                
+                <div class="results-grid">
+                    {% for result in recent_results %}
+                    <div class="result-item">
+                        <div class="result-info">
+                            <div class="result-category {{ result.category }}-category">
+                                {{ result.category.replace('_', ' ').title() }}
+                            </div>
+                            <div class="result-details">
+                                {{ result.formatted_date() }}
+                            </div>
+                        </div>
+                        <div class="result-score">
+                            {{ result.percentage_score() }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <a href="/test-history" class="view-history-btn">
+                    <i class="fas fa-eye"></i>
+                    View Full History
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

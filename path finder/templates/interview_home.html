@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview – Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        /* NAV */
+        .navbar {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed; width: 100%; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 45px; height: 45px; background: linear-gradient(135deg,#3b82f6,#60a5fa); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .logo-text { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg,#fff,#60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+        .nav-link { color: #94a3b8; text-decoration: none; padding: 0.6rem 1rem; border-radius: 10px; transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: .9rem; }
+        .nav-link:hover, .nav-link.active { color: #fff; background: rgba(59,130,246,0.2); }
+        .nav-link.active { background: linear-gradient(135deg,#3b82f6,#2563eb); }
+        .logout-btn { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+        .logout-btn:hover { background: rgba(239,68,68,0.3); }
+
+        /* HERO */
+        .main-content { padding-top: 100px; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+        }
+        .hero-icon {
+            width: 90px; height: 90px;
+            background: linear-gradient(135deg,#10b981,#059669);
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: white;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 35px rgba(16,185,129,0.4);
+        }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: .75rem;
+            background: linear-gradient(135deg,#fff,#6ee7b7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem; }
+
+        /* FEATURES ROW */
+        .features { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+        .feature-card {
+            background: rgba(30,41,59,0.5); border: 1px solid rgba(59,130,246,0.15);
+            border-radius: 16px; padding: 1.25rem; text-align: center;
+        }
+        .feature-card i { font-size: 1.6rem; margin-bottom: .6rem; }
+        .feature-card h4 { font-size: .85rem; font-weight: 600; color: #e2e8f0; }
+        .feature-card p { font-size: .75rem; color: #64748b; margin-top: .3rem; }
+        .fc-green i { color: #10b981; }
+        .fc-blue i  { color: #3b82f6; }
+        .fc-purple i{ color: #8b5cf6; }
+        .fc-orange i{ color: #f97316; }
+
+        /* FORM CARD */
+        .form-card {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+        }
+        .form-card h2 { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 10px; }
+        .form-card h2 i { color: #10b981; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: .9rem; font-weight: 600; color: #94a3b8; margin-bottom: .5rem; }
+        .form-group input, .form-group select {
+            width: 100%; padding: .85rem 1rem;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 12px; color: #e2e8f0; font-size: .95rem;
+            transition: border-color .3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+        .form-group select option { background: #1e293b; }
+
+        /* INTERVIEW TYPE CARDS */
+        .type-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin-top: .5rem; }
+        .type-card {
+            border: 2px solid rgba(59,130,246,0.2);
+            border-radius: 14px; padding: 1rem;
+            cursor: pointer; transition: all .3s; text-align: center;
+            background: rgba(15,23,42,0.4);
+        }
+        .type-card:hover { border-color: #10b981; background: rgba(16,185,129,0.08); }
+        .type-card.selected { border-color: #10b981; background: rgba(16,185,129,0.15); }
+        .type-card i { font-size: 1.5rem; margin-bottom: .4rem; display: block; }
+        .type-card h4 { font-size: .9rem; font-weight: 600; color: #e2e8f0; }
+        .type-card p  { font-size: .75rem; color: #64748b; margin-top: .25rem; }
+        .type-tech    i { color: #3b82f6; }
+        .type-behav   i { color: #8b5cf6; }
+        .type-hr      i { color: #f97316; }
+        .type-mixed   i { color: #10b981; }
+
+        /* QUESTION SLIDER */
+        .slider-row { display: flex; align-items: center; gap: 1rem; }
+        .slider-row input[type=range] { flex: 1; accent-color: #10b981; }
+        .slider-val { font-size: 1.2rem; font-weight: 700; color: #10b981; min-width: 30px; text-align: center; }
+
+        /* SUBMIT */
+        .submit-btn {
+            width: 100%; padding: 1rem;
+            background: linear-gradient(135deg,#10b981,#059669);
+            border: none; border-radius: 14px;
+            color: white; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; transition: all .3s; margin-top: .5rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(16,185,129,0.4); }
+
+        /* HISTORY LINK */
+        .history-link { text-align: center; margin-top: 1.5rem; }
+        .history-link a { color: #60a5fa; text-decoration: none; font-size: .9rem; font-weight: 500; }
+        .history-link a:hover { color: #93c5fd; }
+
+        /* FLASH */
+        .flash { padding: .85rem 1.25rem; border-radius: 12px; margin-bottom: 1.25rem; font-size: .9rem; }
+        .flash.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-compass"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/generate-roadmap" class="nav-link"><i class="fas fa-map"></i> Roadmap</a>
+            <a href="/mock-test" class="nav-link"><i class="fas fa-pencil-alt"></i> Mock Test</a>
+            <a href="/interview" class="nav-link active"><i class="fas fa-user-tie"></i> Interview</a>
+            <a href="/gd-home" class="nav-link"><i class="fas fa-comments"></i> GD</a>
+            <a href="/resume" class="nav-link"><i class="fas fa-file-alt"></i> Resume</a>
+            <a href="/logout" class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-icon"><i class="fas fa-user-tie"></i></div>
+            <h1>AI Interview Chatbot</h1>
+            <p>Experience a full stateful mock interview with an AI interviewer who remembers your answers, evaluates you in real-time and gives a final performance report.</p>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="features">
+            <div class="feature-card fc-green">
+                <i class="fas fa-brain"></i>
+                <h4>Conversation Memory</h4>
+                <p>AI remembers every answer and builds on them</p>
+            </div>
+            <div class="feature-card fc-blue">
+                <i class="fas fa-layer-group"></i>
+                <h4>Multi-Stage Flow</h4>
+                <p>Intro → Technical → Behavioral → Wrap-up</p>
+            </div>
+            <div class="feature-card fc-purple">
+                <i class="fas fa-chart-line"></i>
+                <h4>Live Evaluation</h4>
+                <p>Each answer is scored instantly</p>
+            </div>
+            <div class="feature-card fc-orange">
+                <i class="fas fa-file-alt"></i>
+                <h4>Final Report</h4>
+                <p>Detailed scorecard with improvement tips</p>
+            </div>
+        </div>
+
+        <!-- SETUP FORM -->
+        <div class="form-card">
+            <h2><i class="fas fa-cogs"></i> Configure Your Interview</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for cat, msg in messages %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
+              {% endfor %}
+            {% endwith %}
+
+            <form action="/interview/start" method="POST" id="setupForm">
+
+                <!-- Job Role -->
+                <div class="form-group">
+                    <label><i class="fas fa-briefcase"></i> &nbsp;Target Job Role</label>
+                    <input type="text" name="job_role"
+                           placeholder="e.g. Software Engineer, Data Analyst, Product Manager…"
+                           value="{{ user.career_goal or '' }}" required>
+                </div>
+
+                <!-- Interview Type -->
+                <div class="form-group">
+                    <label><i class="fas fa-list"></i> &nbsp;Interview Type</label>
+                    <div class="type-grid">
+                        <div class="type-card type-tech selected" onclick="selectType('technical',this)">
+                            <i class="fas fa-code"></i>
+                            <h4>Technical</h4>
+                            <p>DSA, system design, coding concepts</p>
+                        </div>
+                        <div class="type-card type-behav" onclick="selectType('behavioral',this)">
+                            <i class="fas fa-users"></i>
+                            <h4>Behavioral</h4>
+                            <p>STAR method, soft skills, teamwork</p>
+                        </div>
+                        <div class="type-card type-hr" onclick="selectType('hr',this)">
+                            <i class="fas fa-handshake"></i>
+                            <h4>HR Round</h4>
+                            <p>Salary, goals, culture fit</p>
+                        </div>
+                        <div class="type-card type-mixed" onclick="selectType('mixed',this)">
+                            <i class="fas fa-random"></i>
+                            <h4>Mixed (Full)</h4>
+                            <p>All types combined</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="interview_type" id="interview_type" value="technical">
+                </div>
+
+                <!-- Number of Questions -->
+                <div class="form-group">
+                    <label><i class="fas fa-question-circle"></i> &nbsp;Number of Questions: <span id="qLabel">10</span></label>
+                    <div class="slider-row">
+                        <input type="range" name="total_questions" id="qSlider"
+                               min="5" max="20" value="10"
+                               oninput="document.getElementById('qLabel').textContent=this.value">
+                        <div class="slider-val" id="qVal">10</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-play-circle"></i> Start Interview
+                </button>
+            </form>
+
+            <div class="history-link">
+                <a href="/interview/history"><i class="fas fa-history"></i> View Past Interviews</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function selectType(value, el) {
+        document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('interview_type').value = value;
+    }
+
+    const qSlider = document.getElementById('qSlider');
+    const qVal    = document.getElementById('qVal');
+    const qLabel  = document.getElementById('qLabel');
+    qSlider.addEventListener('input', () => {
+        qVal.textContent   = qSlider.value;
+        qLabel.textContent = qSlider.value;
+    });
+</script>
+</body>
+</html>

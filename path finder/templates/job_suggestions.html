@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Suggestions - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+        .bg-animation span { position:absolute; width:20px; height:20px; background:rgba(59,130,246,0.1); border-radius:50%; animation:float 15s infinite; }
+        .bg-animation span:nth-child(1){left:10%;animation-delay:0s}
+        .bg-animation span:nth-child(2){left:20%;animation-delay:2s;width:30px;height:30px}
+        .bg-animation span:nth-child(3){left:35%;animation-delay:4s}
+        .bg-animation span:nth-child(4){left:50%;animation-delay:6s;width:25px;height:25px}
+        .bg-animation span:nth-child(5){left:70%;animation-delay:8s}
+        .bg-animation span:nth-child(6){left:85%;animation-delay:10s;width:35px;height:35px}
+        @keyframes float{0%,100%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .nav-content { max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+        .logo-icon { width:45px; height:45px; background:linear-gradient(135deg,#3b82f6,#60a5fa); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:white; box-shadow:0 4px 15px rgba(59,130,246,0.4); }
+        .logo-text { font-size:1.5rem; font-weight:700; background:linear-gradient(135deg,#ffffff,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; gap:0.5rem; align-items:center; }
+        .nav-link { color:#94a3b8; text-decoration:none; padding:0.6rem 1rem; border-radius:10px; transition:all 0.3s ease; display:flex; align-items:center; gap:8px; font-weight:500; font-size:0.9rem; }
+        .nav-link:hover,.nav-link.active { color:#ffffff; background:rgba(59,130,246,0.2); }
+        .nav-link.active { background:linear-gradient(135deg,#3b82f6,#2563eb); box-shadow:0 4px 15px rgba(59,130,246,0.3); }
+        .logout-btn { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+        .logout-btn:hover { background:rgba(239,68,68,0.3); color:#fca5a5; }
+
+        /* Layout */
+        .main-content { padding-top:90px; min-height:100vh; position:relative; z-index:1; }
+        .container { max-width:1400px; margin:0 auto; padding:2rem; }
+
+        /* Page Header */
+        .page-header {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59,130,246,0.2);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .page-header-left { display:flex; align-items:center; gap:1.5rem; }
+        .header-icon { width:65px; height:65px; background:linear-gradient(135deg,#f59e0b,#d97706); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:white; box-shadow:0 8px 25px rgba(245,158,11,0.4); flex-shrink:0; }
+        .page-header h1 { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#ffffff,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:0.3rem; }
+        .page-header p { color:#94a3b8; font-size:0.95rem; }
+
+        /* Stats strip */
+        .stats-strip {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: #93c5fd;
+        }
+        .stat-pill i { font-size: 0.9rem; }
+
+        /* Search Bar */
+        .search-section {
+            margin-bottom: 2rem;
+        }
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .search-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .search-wrapper i {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #60a5fa;
+            font-size: 1rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.9rem 1.2rem 0.9rem 3rem;
+            background: rgba(30,41,59,0.7);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 14px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus { border-color: rgba(59,130,246,0.7); }
+        .search-input::placeholder { color: #64748b; }
+        .search-btn {
+            padding: 0.9rem 1.8rem;
+            background: linear-gradient(135deg,#3b82f6,#2563eb);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .search-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(59,130,246,0.4); }
+        .refresh-btn {
+            padding: 0.9rem 1.4rem;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 14px;
+            color: #34d399;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .refresh-btn:hover { background:rgba(16,185,129,0.25); transform:translateY(-2px); }
+        .refresh-btn.loading i { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Section title */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title i { color: #f59e0b; }
+        .job-count-badge {
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        /* Job Cards Grid */
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .job-card {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59,130,246,0.15);
+            overflow: hidden;
+            transition: all 0.35s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .job-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(245,158,11,0.4);
+            box-shadow: 0 20px 50px rgba(245,158,11,0.15);
+        }
+
+        .job-card-top {
+            padding: 1.5rem 1.5rem 1rem;
+        }
+
+        .job-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: linear-gradient(135deg,#1e3a5f,#2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #60a5fa;
+            flex-shrink: 0;
+            font-weight: 700;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .match-badge {
+            background: linear-gradient(135deg,#065f46,#047857);
+            border: 1px solid rgba(16,185,129,0.4);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.78rem;
+            color: #34d399;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .match-badge.high { background:linear-gradient(135deg,#065f46,#047857); color:#34d399; }
+        .match-badge.medium { background:linear-gradient(135deg,#78350f,#92400e); color:#fbbf24; }
+
+        .job-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.3rem;
+            line-height: 1.4;
+        }
+
+        .job-company {
+            font-size: 0.85rem;
+            color: #60a5fa;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .meta-chip.location { background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.25); }
+        .meta-chip.type     { background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.25); }
+        .meta-chip.level    { background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.25); }
+        .meta-chip.salary   { background:rgba(239,68,68,0.12);  color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+
+        .job-description {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .skills-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        .skill-tag {
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 6px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.72rem;
+            color: #93c5fd;
+            font-weight: 500;
+        }
+        .skill-tag.extra {
+            background: rgba(100,116,139,0.15);
+            border-color: rgba(100,116,139,0.25);
+            color: #94a3b8;
+        }
+
+        .job-card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(59,130,246,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+
+        .match-reasons-preview {
+            font-size: 0.78rem;
+            color: #64748b;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .match-reasons-preview i { color: #34d399; margin-right: 4px; }
+
+        .view-btn {
+            padding: 0.5rem 1.1rem;
+            background: linear-gradient(135deg,#f59e0b,#d97706);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .view-btn:hover { transform:translateY(-1px); box-shadow:0 5px 15px rgba(245,158,11,0.35); }
+
+        /* Match score meter */
+        .match-meter {
+            margin: 0.6rem 0 0.3rem;
+        }
+        .match-meter-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+        }
+        .match-meter-label span:first-child { color: #94a3b8; }
+        .match-meter-label span:last-child { color: #34d399; font-weight: 700; }
+        .match-bar-bg {
+            height: 5px;
+            background: rgba(59,130,246,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .match-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg,#10b981,#34d399);
+            transition: width 0.8s ease;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: rgba(30,41,59,0.4);
+            border-radius: 20px;
+            border: 1px dashed rgba(59,130,246,0.2);
+        }
+        .empty-state i { font-size: 3rem; color: #475569; margin-bottom: 1rem; display: block; }
+        .empty-state h3 { color: #e2e8f0; margin-bottom: 0.5rem; }
+        .empty-state p { color: #64748b; }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.85);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner {
+            width: 60px; height: 60px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-text { color: #93c5fd; font-size: 1rem; font-weight: 500; }
+
+        /* Profile tip banner */
+        .tip-banner {
+            background: linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+        }
+        .tip-banner i { color: #f59e0b; font-size: 1.1rem; flex-shrink: 0; }
+        .tip-banner p { color: #94a3b8; }
+        .tip-banner a { color: #fbbf24; font-weight: 600; text-decoration: none; }
+        .tip-banner a:hover { text-decoration: underline; }
+
+        /* Growth potential indicator */
+        .growth-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .growth-dot.high   { background: #34d399; }
+        .growth-dot.medium { background: #fbbf24; }
+        .growth-dot.low    { background: #f87171; }
+
+        /* Responsive */
+        @media(max-width:768px){
+            .nav-links { display:none; }
+            .jobs-grid { grid-template-columns: 1fr; }
+            .page-header { flex-direction:column; }
+            .search-form { flex-direction:column; }
+            .stats-strip { justify-content:center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-animation">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Generating personalised jobs with AI…</p>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/profile" class="nav-link"><i class="fas fa-user"></i> Profile</a>
+            <a href="/performance" class="nav-link"><i class="fas fa-chart-line"></i> Performance</a>
+            <a href="/job-suggestions" class="nav-link active"><i class="fas fa-briefcase"></i> Jobs</a>
+            <a href="/logout" class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="header-icon"><i class="fas fa-briefcase"></i></div>
+                <div>
+                    <h1>AI Job Suggestions</h1>
+                    <p>Personalised opportunities based on your skills, goals & performance</p>
+                </div>
+            </div>
+            <div class="stats-strip">
+                <div class="stat-pill">
+                    <i class="fas fa-graduation-cap"></i>
+                    {{ user.branch or 'Branch' }}
+                </div>
+                <div class="stat-pill">
+                    <i class="fas fa-star"></i>
+                    {{ avg_test_score }}% Avg Score
+                </div>
+                <div class="stat-pill">
+                    <i class="fas fa-tasks"></i>
+                    {{ total_tests }} Tests
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile tip if incomplete -->
+        {% if not user.skills or not user.career_goal %}
+        <div class="tip-banner">
+            <i class="fas fa-lightbulb"></i>
+            <p>
+                Complete your <a href="/profile">profile with skills and career goal</a>
+                to get highly personalised job suggestions tailored to you.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Search Bar -->
+        <div class="search-section">
+            <form class="search-form" method="GET" action="/job-suggestions" id="searchForm" onsubmit="showLoader()">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input
+                        type="text"
+                        name="q"
+                        class="search-input"
+                        placeholder="Search jobs by title, skill or domain (e.g. React Developer, Data Science, DevOps)…"
+                        value="{{ search_query }}"
+                    >
+                </div>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-magic"></i> AI Search
+                </button>
+                <button type="button" class="refresh-btn" id="refreshBtn" onclick="refreshJobs()">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
+                </button>
+            </form>
+        </div>
+
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                {% if search_query %}
+                    Results for "{{ search_query }}"
+                {% else %}
+                    Recommended for You
+                {% endif %}
+            </h2>
+            <span class="job-count-badge">{{ jobs|length }} jobs found</span>
+        </div>
+
+        <!-- Job Cards -->
+        {% if jobs %}
+        <div class="jobs-grid" id="jobsGrid">
+            {% for job in jobs %}
+            {% set q_param = '?q=' ~ search_query if search_query else '' %}
+            <a href="/job-suggestions/detail/{{ job.id }}{{ q_param }}" class="job-card">
+                <div class="job-card-top">
+                    <div class="job-card-header">
+                        <div class="company-logo">
+                            {{ job.title[0].upper() if job.title else 'J' }}
+                        </div>
+                        <div class="match-badge {{ 'high' if job.match_score >= 80 else 'medium' }}">
+                            <i class="fas fa-bolt"></i>
+                            {{ job.match_score }}% Match
+                        </div>
+                    </div>
+
+                    <div class="job-title">{{ job.title }}</div>
+                    <div class="job-company">
+                        <i class="fas fa-building" style="margin-right:5px;opacity:0.7;"></i>
+                        {{ job.company }}
+                    </div>
+
+                    <div class="job-meta">
+                        <span class="meta-chip location">
+                            <i class="fas fa-map-marker-alt"></i>{{ job.location }}
+                        </span>
+                        <span class="meta-chip type">
+                            <i class="fas fa-clock"></i>{{ job.type }}
+                        </span>
+                        <span class="meta-chip level">
+                            <i class="fas fa-user-tie"></i>{{ job.experience_level }}
+                        </span>
+                        <span class="meta-chip salary">
+                            <i class="fas fa-rupee-sign"></i>{{ job.salary_range }}
+                        </span>
+                    </div>
+
+                    <p class="job-description">{{ job.description }}</p>
+
+                    <!-- Match meter -->
+                    <div class="match-meter">
+                        <div class="match-meter-label">
+                            <span>Profile Match</span>
+                            <span>{{ job.match_score }}%</span>
+                        </div>
+                        <div class="match-bar-bg">
+                            <div class="match-bar-fill" style="width:{{ job.match_score }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="skills-row">
+                        {% for skill in job.skills_required[:4] %}
+                        <span class="skill-tag">{{ skill }}</span>
+                        {% endfor %}
+                        {% if job.skills_required|length > 4 %}
+                        <span class="skill-tag extra">+{{ job.skills_required|length - 4 }} more</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="job-card-footer">
+                    <div class="match-reasons-preview">
+                        <i class="fas fa-check-circle"></i>
+                        {% if job.match_reasons %}{{ job.match_reasons[0] }}{% endif %}
+                    </div>
+                    <div class="view-btn">
+                        View Details <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <h3>No job suggestions yet</h3>
+            <p>Complete your profile or try a different search to get AI-powered job suggestions.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</main>
+
+<script>
+    function showLoader() {
+        document.getElementById('loadingOverlay').classList.add('show');
+    }
+
+    function refreshJobs() {
+        const btn = document.getElementById('refreshBtn');
+        const icon = document.getElementById('refreshIcon');
+        btn.disabled = true;
+        icon.style.animation = 'spin 0.8s linear infinite';
+        document.getElementById('loadingOverlay').classList.add('show');
+
+        const q = document.querySelector('input[name="q"]').value.trim();
+
+        fetch('/job-suggestions/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: q })
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('loadingOverlay').classList.remove('show');
+            if (data.success) {
+                window.location.href = '/job-suggestions' + (q ? '?q=' + encodeURIComponent(q) : '');
+            } else {
+                alert('Could not refresh suggestions. Please try again.');
+            }
+        })
+        .catch(() => {
+            document.getElementById('loadingOverlay').classList.remove('show');
+            alert('Network error. Please try again.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            icon.style.animation = '';
+        });
+    }
+
+    // Animate match bars on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const bars = document.querySelectorAll('.match-bar-fill');
+        bars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => { bar.style.width = width; }, 200);
+        });
+    });
+</script>
+
+</body>
+</html>

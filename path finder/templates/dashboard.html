@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; width: 30px; height: 30px; }
+        .bg-animation span:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; animation-delay: 6s; width: 25px; height: 25px; }
+        .bg-animation span:nth-child(5) { left: 70%; animation-delay: 8s; }
+        .bg-animation span:nth-child(6) { left: 85%; animation-delay: 10s; width: 35px; height: 35px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .welcome-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            flex-shrink: 0;
+        }
+
+        .welcome-info h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-info p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .welcome-info .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 25px;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            color: #60a5fa;
+            margin-top: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.4rem;
+            color: white;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: #3b82f6;
+        }
+
+        /* Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .module-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(59, 130, 246, 0.25);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .module-header {
+            padding: 2rem 2rem 1.5rem;
+        }
+
+        .module-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: white;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .module-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .module-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .module-icon.purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .module-icon.orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .module-icon.rose { background: linear-gradient(135deg, #f43f5e, #be123c); }
+        .module-icon.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+
+        .module-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .module-footer {
+            padding: 1.25rem 2rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .module-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .module-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .module-btn.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .module-btn.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .module-btn.purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .module-btn.orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .module-btn.rose { background: linear-gradient(135deg, #f43f5e, #be123c); }
+        .module-btn.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 1.25rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 14px;
+            text-decoration: none;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 1.2rem;
+            color: #60a5fa;
+        }
+
+        .quick-action-btn span {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bars {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-info {
+            min-width: 140px;
+        }
+
+        .progress-info h4 {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-info span {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            height: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .progress-bar.blue { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+        .progress-bar.green { background: linear-gradient(135deg, #10b981, #34d399); }
+        .progress-bar.purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+        .progress-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tips-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .tips-content h4 {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tips-content p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .welcome-avatar {
+                margin-bottom: 1rem;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/assistant" class="nav-link" style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.1)); border: 1px solid rgba(168,85,247,0.3);">
+                    <i class="fas fa-robot"></i> AI Assistant
+                </a>
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="/history" class="nav-link">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="/performance" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Performance
+                </a>
+                <a href="/schedule" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i> Schedule
+                </a>
+                <a href="/job-suggestions" class="nav-link">
+                    <i class="fas fa-briefcase"></i> Jobs
+                </a>
+                <a href="/logout" class="nav-link logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-avatar">
+                    {{ user.name[0].upper() if user.name else 'U' }}
+                </div>
+                <div class="welcome-info">
+                    <h1>Welcome back, {{ user.name or 'Student' }}!</h1>
+                    <p>Your AI-powered career development hub is ready. Let's continue your journey to success.</p>
+                    <div class="ai-badge">
+                        <i class="fas fa-robot"></i>
+                        Powered by Advanced AI
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Grid -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-road"></i>
+                    </div>
+                    <div class="stat-value">{{ total_roadmaps or 0 }}</div>
+                    <div class="stat-label">Roadmaps Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="stat-value">{{ total_tests or 0 }}</div>
+                    <div class="stat-label">Tests Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-value">{{ avg_test_score or 0 }}%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-value">{{ profile_completion or 0 }}%</div>
+                    <div class="stat-label">Profile Complete</div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section">
+                <div class="progress-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Your Progress Overview
+                    </h3>
+                </div>
+                <div class="progress-bars">
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <h4>Profile Completion</h4>
+                            <span>Complete your profile</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar blue" style="width: {{ profile_completion or 0 }}%;"></div>
+                        </div>
+                        <div class="progress-value">{{ profile_completion or 0 }}%</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <h4>Interview Readiness</h4>
+                            <span>Based on test scores</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar green" style="width: {{ readiness_level or 0 }}%;"></div>
+                        </div>
+                        <div class="progress-value">{{ readiness_level or 0 }}%</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <h4>Skill Development</h4>
+                            <span>Learning progress</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar purple" style="width: {{ avg_test_score or 0 }}%;"></div>
+                        </div>
+                        <div class="progress-value">{{ avg_test_score or 0 }}%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modules Section -->
+            <section class="section-header">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <h2 class="section-title" style="margin:0">
+                        <i class="fas fa-th-large"></i>
+                        All Modules
+                    </h2>
+                    <button id="toggleExtraModulesBtn" onclick="toggleExtraModules()" title="Toggle hidden modules" style="width:38px;height:38px;border-radius:50%;border:none;background:rgba(99,102,241,0.18);color:#818cf8;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.25s,color 0.25s;flex-shrink:0;">
+                        <i class="fas fa-eye" id="toggleExtraModulesIcon"></i>
+                    </button>
+                </div>
+            </section>
+
+            <div class="modules-grid">
+                <!-- AI Career Assistant (NEW - Featured) -->
+                <div class="module-card" style="background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.1)); border: 2px solid rgba(168,85,247,0.4); position: relative;">
+                    <div style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #a855f7, #6366f1); color: white; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        ✨ New
+                    </div>
+                    <div class="module-header">
+                        <div class="module-icon" style="background: linear-gradient(135deg, #a855f7, #c084fc);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>🤖 AI Career Assistant</h3>
+                        <p>Your intelligent guide! Get personalized career advice, performance analysis, interview tips, and answers to all your career questions.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/assistant" class="module-btn" style="background: linear-gradient(135deg, #a855f7, #6366f1); border-color: #a855f7;">
+                            <i class="fas fa-comments"></i>
+                            Chat with Assistant
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Roadmap Generator -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon blue">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3>AI Roadmap Generator</h3>
+                        <p>Get a personalized 4-week career roadmap tailored to your skills, goals, and areas you'd like to improve.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/generate-roadmap" class="module-btn blue">
+                            <i class="fas fa-magic"></i>
+                            Generate Roadmap
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mock Tests -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon green">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3>Mock Tests</h3>
+                        <p>Practice with AI-generated aptitude and technical questions to assess your knowledge and identify improvement areas.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/mock-test" class="module-btn green">
+                            <i class="fas fa-play"></i>
+                            Start Testing
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Resume Builder -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon purple">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3>AI Resume Builder</h3>
+                        <p>Create professional resumes with AI assistance, get detailed validation scores, and simulate recruiter reviews.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/resume-builder" class="module-btn purple">
+                            <i class="fas fa-pencil-alt"></i>
+                            Build Resume
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Job Suggestions -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon orange">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3>AI Job Suggestions</h3>
+                        <p>Get AI-powered, personalised job recommendations based on your skills, career goal, and mock test performance.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/job-suggestions" class="module-btn orange">
+                            <i class="fas fa-search"></i>
+                            Explore Jobs
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Group Discussion -->
+                <div class="module-card extra-module" style="display:none;">
+                    <div class="module-header">
+                        <div class="module-icon orange">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Group Discussion</h3>
+                        <p>Practice Group Discussion skills with AI evaluation. Improve communication, leadership, and analytical abilities.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/group-discussion" class="module-btn orange">
+                            <i class="fas fa-users"></i>
+                            Start Practicing
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Performance Analytics -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon rose">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Performance Analytics</h3>
+                        <p>Track your learning progress, monitor roadmap completion rates, and visualize your full skill development journey.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/performance" class="module-btn rose">
+                            <i class="fas fa-eye"></i>
+                            View Analytics
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Roadmap History -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon teal">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3>Roadmap History</h3>
+                        <p>Access all your previously generated roadmaps, review past goals, and track your career evolution over time.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/history" class="module-btn teal">
+                            <i class="fas fa-clock"></i>
+                            Browse History
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Scheduler -->
+                <div class="module-card extra-module" style="display:none;">
+                    <div class="module-header">
+                        <div class="module-icon blue" style="background:rgba(99,102,241,.2);color:#818cf8">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>Scheduler</h3>
+                        <p>Plan mock tests, GD sessions, interview practice and roadmap tasks. Set reminders and track your preparation timeline.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/schedule" class="module-btn blue" style="background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 4px 15px rgba(99,102,241,.3)">
+                            <i class="fas fa-calendar-plus"></i>
+                            Open Scheduler
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Interview Chatbot -->
+                <div class="module-card extra-module" style="display:none;">
+                    <div class="module-header">
+                        <div class="module-icon green" style="background:rgba(16,185,129,.2);color:#34d399">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3>AI Interview Chatbot</h3>
+                        <p>Experience a real stateful mock interview with memory. AI evaluates every answer, adapts questions and delivers a full performance report.</p>
+                    </div>
+                    <div class="module-footer">
+                        <a href="/interview" class="module-btn green" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,.3)">
+                            <i class="fas fa-play-circle"></i>
+                            Start Interview
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h3 class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h3>
+                <div class="quick-actions-grid">
+                    <a href="/profile" class="quick-action-btn">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                    <a href="/test-history" class="quick-action-btn">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Test History</span>
+                    </a>
+                    <a href="/resume-history" class="quick-action-btn">
+                        <i class="fas fa-file-archive"></i>
+                        <span>My Resumes</span>
+                    </a>
+                    <a href="/gd-history" class="quick-action-btn">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>GD Sessions</span>
+                    </a>
+                    <a href="/interview/history" class="quick-action-btn">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Interviews</span>
+                    </a>
+                    <a href="/job-suggestions" class="quick-action-btn">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Job Suggestions</span>
+                    </a>
+                    <a href="/schedule" class="quick-action-btn">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>My Schedule</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Tips Section -->
+            <section class="tips-section">
+                <div class="tips-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="tips-content">
+                    <h4>Pro Tip: Stay Consistent!</h4>
+                    <p>Complete at least one mock test daily and follow your roadmap to improve your placement readiness by 40% faster.</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2026 Student Career Assistant. Empowering careers with artificial intelligence.</p>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        var _extraModulesVisible = false;
+        function toggleExtraModules() {
+            _extraModulesVisible = !_extraModulesVisible;
+            var cards = document.querySelectorAll('.extra-module');
+            var btn = document.getElementById('toggleExtraModulesBtn');
+            var icon = document.getElementById('toggleExtraModulesIcon');
+            cards.forEach(function(card) {
+                card.style.display = _extraModulesVisible ? '' : 'none';
+            });
+            if (_extraModulesVisible) {
+                icon.className = 'fas fa-eye-slash';
+                btn.style.background = 'rgba(239,68,68,0.18)';
+                btn.style.color = '#f87171';
+            } else {
+                icon.className = 'fas fa-eye';
+                btn.style.background = 'rgba(99,102,241,0.18)';
+                btn.style.color = '#818cf8';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Templates - Student Career Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: 5%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: 5%;
+            animation-delay: -7s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            bottom: 10%;
+            left: 40%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.8; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            padding-bottom: 50px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Template Grid */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .template-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 2rem;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .template-card:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .template-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .template-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .template-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .template-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .icon-professional { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .icon-modern { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-creative { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .icon-minimal { background: linear-gradient(135deg, #64748b, #475569); }
+
+        .template-description {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Template Preview */
+        .template-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            min-height: 180px;
+            color: #333;
+        }
+
+        .template-preview.professional {
+            font-family: 'Times New Roman', serif;
+        }
+
+        .template-preview.modern {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .template-preview.creative {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%);
+        }
+
+        .template-preview.minimal {
+            font-family: 'Inter', sans-serif;
+            background: #fafafa;
+        }
+
+        .template-preview h1 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #1f2937;
+        }
+
+        .template-preview h3 {
+            font-size: 13px;
+            margin: 10px 0 5px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 2px;
+        }
+
+        .template-preview p {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        /* Features */
+        .template-features {
+            margin-bottom: 1.2rem;
+        }
+
+        .template-features h6 {
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        .feature-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .feature-tag {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Best For */
+        .best-for {
+            margin-bottom: 1.5rem;
+        }
+
+        .best-for h6 {
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        .industry-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .industry-tag {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Actions */
+        .template-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-use-template {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-use-template:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-preview {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-preview:hover {
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Actions Section */
+        .actions-section {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .actions-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .actions-section p {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .btn-outline {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="logo-text">Student Career Assistant</span>
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/resume-builder" class="nav-link">
+                    <i class="fas fa-file-alt"></i>
+                    Resume Builder
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-layer-group"></i> Resume Templates</h1>
+                <p>Choose from professionally designed templates optimized for different industries and roles</p>
+            </div>
+
+            <!-- Template Grid -->
+            <div class="template-grid">
+                {% for template_id, template in templates.items() %}
+                <div class="template-card" data-template="{{ template_id }}">
+                    <div class="template-header">
+                        <h3 class="template-name">{{ template.name }}</h3>
+                        <div class="template-icon {% if template_id == 'professional' %}icon-professional{% elif template_id == 'modern' %}icon-modern{% elif template_id == 'creative' %}icon-creative{% else %}icon-minimal{% endif %}">
+                            {% if template_id == 'professional' %}
+                                <i class="fas fa-building"></i>
+                            {% elif template_id == 'modern' %}
+                                <i class="fas fa-rocket"></i>
+                            {% elif template_id == 'creative' %}
+                                <i class="fas fa-palette"></i>
+                            {% elif template_id == 'minimal' %}
+                                <i class="fas fa-circle"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="template-description">
+                        {{ template.description }}
+                    </div>
+
+                    <!-- Template Preview -->
+                    <div class="template-preview {{ template_id }}">
+                        {{ template.preview_html|safe }}
+                    </div>
+
+                    <!-- Template Features -->
+                    <div class="template-features">
+                        <h6>Features:</h6>
+                        <div class="feature-tags">
+                            {% for feature in template.features %}
+                            <span class="feature-tag">{{ feature }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Best For Industries -->
+                    <div class="best-for">
+                        <h6>Best for:</h6>
+                        <div class="industry-tags">
+                            {% for industry in template.best_for %}
+                            <span class="industry-tag">{{ industry }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="template-actions">
+                        <button class="btn-use-template" onclick="useTemplate('{{ template_id }}')">
+                            <i class="fas fa-plus"></i>
+                            Use Template
+                        </button>
+                        <button class="btn-preview" onclick="previewTemplate('{{ template_id }}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Actions Section -->
+            <div class="actions-section">
+                <h2>Need Something Else?</h2>
+                <p>Explore other options to create your perfect resume</p>
+                
+                <div class="action-buttons">
+                    <a href="/create-resume" class="action-btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Create from Scratch
+                    </a>
+                    <a href="/upload-resume" class="action-btn btn-outline">
+                        <i class="fas fa-upload"></i>
+                        Upload Existing Resume
+                    </a>
+                    <a href="/resume-builder" class="action-btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Resume Builder
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function useTemplate(templateId) {
+            window.location.href = `/generate-from-template/${templateId}`;
+        }
+
+        function previewTemplate(templateId) {
+            document.querySelector(`[data-template="${templateId}"] .template-preview`).scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        // Add click to select template
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                    const templateId = this.dataset.template;
+                    useTemplate(templateId);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

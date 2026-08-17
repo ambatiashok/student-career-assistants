@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.title }} – Job Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+        .bg-animation span { position:absolute; width:20px; height:20px; background:rgba(59,130,246,0.1); border-radius:50%; animation:float 15s infinite; }
+        .bg-animation span:nth-child(1){left:10%;animation-delay:0s}
+        .bg-animation span:nth-child(2){left:20%;animation-delay:2s;width:30px;height:30px}
+        .bg-animation span:nth-child(3){left:35%;animation-delay:4s}
+        .bg-animation span:nth-child(4){left:50%;animation-delay:6s;width:25px;height:25px}
+        .bg-animation span:nth-child(5){left:70%;animation-delay:8s}
+        .bg-animation span:nth-child(6){left:85%;animation-delay:10s;width:35px;height:35px}
+        @keyframes float{0%,100%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100vh) rotate(720deg);opacity:0}}
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15,23,42,0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+        }
+        .nav-content { max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+        .logo-icon { width:45px; height:45px; background:linear-gradient(135deg,#3b82f6,#60a5fa); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:white; box-shadow:0 4px 15px rgba(59,130,246,0.4); }
+        .logo-text { font-size:1.5rem; font-weight:700; background:linear-gradient(135deg,#ffffff,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; gap:0.5rem; align-items:center; }
+        .nav-link { color:#94a3b8; text-decoration:none; padding:0.6rem 1rem; border-radius:10px; transition:all 0.3s ease; display:flex; align-items:center; gap:8px; font-weight:500; font-size:0.9rem; }
+        .nav-link:hover,.nav-link.active { color:#ffffff; background:rgba(59,130,246,0.2); }
+        .nav-link.active { background:linear-gradient(135deg,#3b82f6,#2563eb); box-shadow:0 4px 15px rgba(59,130,246,0.3); }
+        .logout-btn { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+        .logout-btn:hover { background:rgba(239,68,68,0.3); color:#fca5a5; }
+
+        /* Layout */
+        .main-content { padding-top:90px; min-height:100vh; position:relative; z-index:1; }
+        .container { max-width:1200px; margin:0 auto; padding:2rem; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+        }
+        .breadcrumb a { color: #60a5fa; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #64748b; }
+        .breadcrumb .current { color: #94a3b8; }
+
+        /* Main grid */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* Card base */
+        .card {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59,130,246,0.15);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(59,130,246,0.1);
+        }
+        .card-body { padding: 1.5rem; }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i { color: #f59e0b; }
+
+        /* Hero Job Card */
+        .job-hero {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(245,158,11,0.3);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .job-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+        }
+        .job-hero-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .company-logo-lg {
+            width: 70px; height: 70px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #1e3a5f, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #60a5fa;
+            border: 1px solid rgba(59,130,246,0.4);
+            flex-shrink: 0;
+        }
+        .job-title-block { flex: 1; }
+        .job-title-main {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.3;
+            margin-bottom: 0.4rem;
+        }
+        .job-company-name {
+            font-size: 1rem;
+            color: #60a5fa;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        .job-industry-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.78rem;
+            color: #94a3b8;
+        }
+
+        /* Match Score Ring */
+        .match-ring-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .match-ring {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 calc(var(--pct) * 1%), rgba(59,130,246,0.1) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .match-ring::before {
+            content: '';
+            position: absolute;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: #1e293b;
+        }
+        .match-ring-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #34d399;
+        }
+        .match-ring-label {
+            font-size: 0.72rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        /* Meta chips */
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.78rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .meta-chip.location { background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.25); }
+        .meta-chip.type     { background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.25); }
+        .meta-chip.level    { background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.25); }
+        .meta-chip.salary   { background:rgba(239,68,68,0.12);  color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+        .meta-chip.industry { background:rgba(139,92,246,0.12); color:#c4b5fd; border:1px solid rgba(139,92,246,0.25); }
+
+        /* Growth badge */
+        .growth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .growth-badge.high   { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+        .growth-badge.medium { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+        .growth-badge.low    { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; }
+
+        /* Section heading */
+        .section-heading {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(59,130,246,0.1);
+        }
+        .section-heading i { color: #60a5fa; }
+
+        /* Description */
+        .job-description-full {
+            font-size: 0.92rem;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+
+        /* List */
+        .detail-list { list-style: none; }
+        .detail-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(59,130,246,0.06);
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+        .detail-list li:last-child { border-bottom: none; }
+        .detail-list li i { color: #60a5fa; margin-top: 2px; flex-shrink: 0; font-size: 0.75rem; }
+        .detail-list li i.green { color: #34d399; }
+        .detail-list li i.yellow { color: #fbbf24; }
+
+        /* Skills grid */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .skill-pill {
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 8px;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.8rem;
+            color: #93c5fd;
+            font-weight: 500;
+            transition: all 0.25s;
+        }
+        .skill-pill:hover { background: rgba(59,130,246,0.25); transform: translateY(-1px); }
+
+        /* Match Reasons */
+        .match-reason-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(16,185,129,0.06);
+        }
+        .match-reason-item:last-child { border-bottom: none; }
+        .match-reason-icon {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #34d399;
+            flex-shrink: 0;
+        }
+        .match-reason-text { font-size: 0.86rem; color: #94a3b8; line-height: 1.5; padding-top: 3px; }
+
+        /* Apply Tips */
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.7rem;
+            background: rgba(245,158,11,0.05);
+            border: 1px solid rgba(245,158,11,0.1);
+            border-radius: 10px;
+            margin-bottom: 0.6rem;
+        }
+        .tip-number {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            background: rgba(245,158,11,0.2);
+            color: #fbbf24;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tip-text { font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; }
+
+        /* Apply Buttons */
+        .apply-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .apply-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0.9rem 1.5rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .apply-btn.linkedin {
+            background: linear-gradient(135deg, #0077b5, #0a66c2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,119,181,0.3);
+        }
+        .apply-btn.naukri {
+            background: linear-gradient(135deg, #4a154b, #711a75);
+            color: white;
+            box-shadow: 0 4px 15px rgba(74,21,75,0.3);
+        }
+        .apply-btn.adzuna {
+            background: linear-gradient(135deg, #e04e2f, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(224,78,47,0.3);
+        }
+        .apply-btn.internshala {
+            background: linear-gradient(135deg, #006fba, #0095d9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,111,186,0.3);
+        }
+        .apply-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* Profile Match Meter */
+        .match-meter-full { margin: 1rem 0; }
+        .match-meter-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+        }
+        .match-meter-label span:first-child { color: #94a3b8; }
+        .match-meter-label span:last-child { color: #34d399; font-weight: 700; font-size: 1rem; }
+        .match-bar-bg {
+            height: 8px;
+            background: rgba(59,130,246,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .match-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 1s ease;
+        }
+
+        /* Similar Jobs */
+        .similar-job-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.9rem;
+            background: rgba(15,23,42,0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(59,130,246,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            margin-bottom: 0.6rem;
+        }
+        .similar-job-item:hover {
+            border-color: rgba(245,158,11,0.3);
+            background: rgba(245,158,11,0.05);
+            transform: translateX(4px);
+        }
+        .similar-logo {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1e3a5f, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #60a5fa;
+            flex-shrink: 0;
+        }
+        .similar-info { flex: 1; min-width: 0; }
+        .similar-title { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .similar-company { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        .similar-score {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #34d399;
+            white-space: nowrap;
+        }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.65rem 1.4rem;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 12px;
+            color: #93c5fd;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        .back-btn:hover { background: rgba(59,130,246,0.2); transform: translateX(-4px); }
+
+        /* Responsive */
+        @media(max-width:900px) {
+            .detail-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .job-hero-header { flex-wrap: wrap; }
+        }
+        @media(max-width:600px) {
+            .container { padding: 1rem; }
+            .job-title-main { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-animation">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-content">
+        <a href="/dashboard" class="logo">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <span class="logo-text">Student Career Assistant</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/profile" class="nav-link"><i class="fas fa-user"></i> Profile</a>
+            <a href="/performance" class="nav-link"><i class="fas fa-chart-line"></i> Performance</a>
+            <a href="/job-suggestions" class="nav-link active"><i class="fas fa-briefcase"></i> Jobs</a>
+            <a href="/logout" class="nav-link logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+            <span><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i></span>
+            <a href="/job-suggestions{% if search_query %}?q={{ search_query }}{% endif %}">Job Suggestions</a>
+            <span><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i></span>
+            <span class="current">{{ job.title }}</span>
+        </div>
+
+        <!-- Back button -->
+        <a href="/job-suggestions{% if search_query %}?q={{ search_query }}{% endif %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to All Jobs
+        </a>
+
+        <div class="detail-grid">
+
+            <!-- ─── LEFT COLUMN ─── -->
+            <div class="left-col">
+
+                <!-- Hero Job Card -->
+                <div class="job-hero">
+                    <div class="job-hero-header">
+                        <div class="company-logo-lg">
+                            {{ job.title[0].upper() if job.title else 'J' }}
+                        </div>
+                        <div class="job-title-block">
+                            <div class="job-title-main">{{ job.title }}</div>
+                            <div class="job-company-name">
+                                <i class="fas fa-building" style="margin-right:5px;opacity:0.7;"></i>
+                                {{ job.company }}
+                            </div>
+                            <div class="job-industry-tag">
+                                <i class="fas fa-tag"></i> {{ job.industry }}
+                            </div>
+                        </div>
+                        <!-- Match Ring -->
+                        <div class="match-ring-wrapper">
+                            <div class="match-ring" style="--pct: {{ job.match_score }}">
+                                <span class="match-ring-text">{{ job.match_score }}%</span>
+                            </div>
+                            <div class="match-ring-label">Profile Match</div>
+                        </div>
+                    </div>
+
+                    <!-- Meta chips -->
+                    <div class="meta-row">
+                        <span class="meta-chip location"><i class="fas fa-map-marker-alt"></i>{{ job.location }}</span>
+                        <span class="meta-chip type"><i class="fas fa-clock"></i>{{ job.type }}</span>
+                        <span class="meta-chip level"><i class="fas fa-user-tie"></i>{{ job.experience_level }}</span>
+                        <span class="meta-chip salary"><i class="fas fa-rupee-sign"></i>{{ job.salary_range }}</span>
+                        <span class="meta-chip industry"><i class="fas fa-industry"></i>{{ job.industry }}</span>
+                    </div>
+
+                    <!-- Growth Potential -->
+                    <div style="display:flex; align-items:center; gap:1rem; margin-top:0.5rem;">
+                        {% set gp = job.growth_potential | lower %}
+                        <span class="growth-badge {{ gp }}">
+                            <i class="fas fa-{% if gp == 'high' %}rocket{% elif gp == 'medium' %}chart-bar{% else %}minus-circle{% endif %}"></i>
+                            {{ gp | capitalize }} Growth Potential
+                        </span>
+                    </div>
+
+                    <!-- Match meter -->
+                    <div class="match-meter-full" style="margin-top:1.2rem;">
+                        <div class="match-meter-label">
+                            <span>How well this matches your profile</span>
+                            <span>{{ job.match_score }}%</span>
+                        </div>
+                        <div class="match-bar-bg">
+                            <div class="match-bar-fill" id="matchBar" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Description -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-heading">
+                            <i class="fas fa-info-circle"></i> About This Role
+                        </div>
+                        <p class="job-description-full">{{ job.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Responsibilities -->
+                {% if job.responsibilities %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-heading">
+                            <i class="fas fa-tasks"></i> Key Responsibilities
+                        </div>
+                        <ul class="detail-list">
+                            {% for r in job.responsibilities %}
+                            <li><i class="fas fa-circle green"></i> {{ r }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Qualifications -->
+                {% if job.qualifications %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-heading">
+                            <i class="fas fa-graduation-cap"></i> Qualifications & Requirements
+                        </div>
+                        <ul class="detail-list">
+                            {% for q in job.qualifications %}
+                            <li><i class="fas fa-check-square yellow"></i> {{ q }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Skills Required -->
+                {% if job.skills_required %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-heading">
+                            <i class="fas fa-code"></i> Skills Required
+                        </div>
+                        <div class="skills-grid">
+                            {% for skill in job.skills_required %}
+                            <span class="skill-pill">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Why This Job Matches You -->
+                {% if job.match_reasons %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="section-heading">
+                            <i class="fas fa-bolt"></i> Why This Matches Your Profile
+                        </div>
+                        {% for reason in job.match_reasons %}
+                        <div class="match-reason-item">
+                            <div class="match-reason-icon"><i class="fas fa-check"></i></div>
+                            <div class="match-reason-text">{{ reason }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- ─── RIGHT COLUMN ─── -->
+            <div class="right-col">
+
+                <!-- Apply Now -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-paper-plane"></i> Apply Now</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="apply-buttons">
+                            <a href="{{ job.search_url }}" target="_blank" rel="noopener" class="apply-btn linkedin">
+                                <i class="fab fa-linkedin"></i> Search on LinkedIn
+                            </a>
+                            <a href="{{ job.naukri_url }}" target="_blank" rel="noopener" class="apply-btn naukri">
+                                <i class="fas fa-briefcase"></i> Search on Naukri
+                            </a>
+                            <a href="{{ job.adzuna_url }}" target="_blank" rel="noopener" class="apply-btn adzuna">
+                                <i class="fas fa-search"></i> Search on Adzuna
+                            </a>
+                            {% if job.experience_level and 'intern' in job.experience_level | lower or job.experience_level and 'fresher' in job.experience_level | lower %}
+                            <a href="https://internshala.com/internships/{{ job.title | lower | replace(' ', '-') }}-internship" target="_blank" rel="noopener" class="apply-btn internshala">
+                                <i class="fas fa-star"></i> Search on Internshala
+                            </a>
+                            {% endif %}
+                        </div>
+                        <p style="font-size:0.75rem; color:#475569; text-align:center; margin-top:1rem;">
+                            <i class="fas fa-info-circle"></i> Links open job search pages for this role
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Apply Tips -->
+                {% if job.apply_tips %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-lightbulb"></i> Interview & Apply Tips</div>
+                    </div>
+                    <div class="card-body">
+                        {% for tip in job.apply_tips %}
+                        <div class="tip-item">
+                            <div class="tip-number">{{ loop.index }}</div>
+                            <div class="tip-text">{{ tip }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Job Summary Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-clipboard-list"></i> Quick Summary</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="detail-list">
+                            <li><i class="fas fa-map-marker-alt" style="color:#a5b4fc;"></i> <span><strong>Location:</strong> {{ job.location }}</span></li>
+                            <li><i class="fas fa-clock" style="color:#34d399;"></i> <span><strong>Type:</strong> {{ job.type }}</span></li>
+                            <li><i class="fas fa-user-tie" style="color:#fbbf24;"></i> <span><strong>Level:</strong> {{ job.experience_level }}</span></li>
+                            <li><i class="fas fa-rupee-sign" style="color:#f87171;"></i> <span><strong>Salary:</strong> {{ job.salary_range }}</span></li>
+                            <li><i class="fas fa-industry" style="color:#c4b5fd;"></i> <span><strong>Industry:</strong> {{ job.industry }}</span></li>
+                            <li><i class="fas fa-rocket" style="color:#34d399;"></i> <span><strong>Growth:</strong> {{ job.growth_potential | capitalize }}</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Similar Jobs -->
+                {% if all_jobs and all_jobs | length > 1 %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-star"></i> Similar Jobs</div>
+                    </div>
+                    <div class="card-body">
+                        {% set current_id = job.id %}
+                        {% set shown = namespace(count=0) %}
+                        {% for j in all_jobs %}
+                        {% if j.id != current_id and shown.count < 4 %}
+                        {% set shown.count = shown.count + 1 %}
+                        <a href="/job-suggestions/detail/{{ j.id }}{% if search_query %}?q={{ search_query }}{% endif %}" class="similar-job-item">
+                            <div class="similar-logo">{{ j.title[0].upper() if j.title else 'J' }}</div>
+                            <div class="similar-info">
+                                <div class="similar-title">{{ j.title }}</div>
+                                <div class="similar-company">{{ j.company }} · {{ j.location }}</div>
+                            </div>
+                            <div class="similar-score">{{ j.match_score }}%</div>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                        <a href="/job-suggestions{% if search_query %}?q={{ search_query }}{% endif %}"
+                           style="display:block; text-align:center; padding:0.6rem; border-radius:10px; background:rgba(59,130,246,0.08); color:#60a5fa; text-decoration:none; font-size:0.83rem; font-weight:600; margin-top:0.5rem; transition:background 0.2s;"
+                           onmouseover="this.style.background='rgba(59,130,246,0.15)'"
+                           onmouseout="this.style.background='rgba(59,130,246,0.08)'">
+                            View All Jobs <i class="fas fa-arrow-right" style="margin-left:4px;"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div><!-- end right-col -->
+        </div><!-- end detail-grid -->
+    </div>
+</main>
+
+<script>
+    // Animate match bar on page load
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            var bar = document.getElementById('matchBar');
+            if (bar) bar.style.width = '{{ job.match_score }}%';
+        }, 300);
+    });
+</script>
+
+</body>
+</html>
